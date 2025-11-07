@@ -1,0 +1,32 @@
+[
+{
+  "directory": "/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/build",
+  "command": "/usr/bin/g++  -I\"/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include\" -g -std=c++11 -Wall -Wno-unused-function -o CMakeFiles/main.dir/src/main.cpp.o -c \"/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/src/main.cpp\"",
+  "file": "/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/src/main.cpp",
+  "output": "CMakeFiles/main.dir/src/main.cpp.o"
+},
+{
+  "directory": "/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/build",
+  "command": "/usr/bin/g++  -I\"/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include\" -g -std=c++11 -Wall -Wno-unused-function -o CMakeFiles/main.dir/src/textrendering.cpp.o -c \"/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/src/textrendering.cpp\"",
+  "file": "/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/src/textrendering.cpp",
+  "output": "CMakeFiles/main.dir/src/textrendering.cpp.o"
+},
+{
+  "directory": "/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/build",
+  "command": "/usr/bin/g++  -I\"/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include\" -g -std=c++11 -Wall -Wno-unused-function -o CMakeFiles/main.dir/src/tiny_obj_loader.cpp.o -c \"/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/src/tiny_obj_loader.cpp\"",
+  "file": "/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/src/tiny_obj_loader.cpp",
+  "output": "CMakeFiles/main.dir/src/tiny_obj_loader.cpp.o"
+},
+{
+  "directory": "/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/build",
+  "command": "/usr/bin/g++  -I\"/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include\" -g -std=c++11 -Wall -Wno-unused-function -o CMakeFiles/main.dir/src/stb_image.cpp.o -c \"/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/src/stb_image.cpp\"",
+  "file": "/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/src/stb_image.cpp",
+  "output": "CMakeFiles/main.dir/src/stb_image.cpp.o"
+},
+{
+  "directory": "/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/build",
+  "command": "/usr/bin/gcc  -I\"/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include\" -g -Wall -Wno-unused-function -o CMakeFiles/main.dir/src/glad.c.o -c \"/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/src/glad.c\"",
+  "file": "/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/src/glad.c",
+  "output": "CMakeFiles/main.dir/src/glad.c.o"
+}
+]

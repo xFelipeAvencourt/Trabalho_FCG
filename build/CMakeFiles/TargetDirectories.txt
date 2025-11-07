@@ -1,0 +1,4 @@
+/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/build/CMakeFiles/main.dir
+/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/build/CMakeFiles/run.dir
+/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/build/CMakeFiles/edit_cache.dir
+/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/build/CMakeFiles/rebuild_cache.dir
