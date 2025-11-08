@@ -28,6 +28,8 @@
 // Headers locais, definidos na pasta "include/"
 #include "utils.h"
 #include "matrices.h"
+#include "Personagem.h"
+#include "Constantes.h"
 
 #define DADOS "INF01047 - 00342904 - Felipe Avencourt Soares"
 
@@ -169,6 +171,9 @@ float g_CameraTheta = 0.0f; // Ângulo no plano ZX em relação ao eixo Z
 float g_CameraPhi = 0.0f;   // Ângulo em relação ao eixo Y
 float g_CameraDistance = 3.5f; // Distância da câmera para a origem
 
+Camera Player(glm::vec3(0.0f, 1.0f, 5.0f));
+float deltaTime = 0.0f, lastFrameTime = 0.0f;
+
 // Variáveis que controlam rotação do antebraço
 float g_ForearmAngleZ = 0.0f;
 float g_ForearmAngleX = 0.0f;
@@ -176,6 +181,11 @@ float g_ForearmAngleX = 0.0f;
 // Variáveis que controlam translação do torso
 float g_TorsoPositionX = 0.0f;
 float g_TorsoPositionY = 0.0f;
+
+bool g_WPressed = false;
+bool g_SPressed = false;
+bool g_DPressed = false;
+bool g_APressed = false;
 
 bool g_UsePerspectiveProjection = true;
 
@@ -225,6 +235,7 @@ int main(int argc, char* argv[]){
     glfwSetScrollCallback(window, ScrollCallback);
 
     glfwMakeContextCurrent(window);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // Carregamento de todas funções definidas por OpenGL 3.3, utilizando a
     // biblioteca GLAD.
@@ -234,7 +245,7 @@ int main(int argc, char* argv[]){
     // redimensionada, por consequência alterando o tamanho do "framebuffer"
     // (região de memória onde são armazenados os pixels da imagem).
     glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
-    FramebufferSizeCallback(window, 800, 600); // Forçamos a chamada do callback acima, para definir g_ScreenRatio.
+    FramebufferSizeCallback(window, WIDTH, HEIGHT); // Forçamos a chamada do callback acima, para definir g_ScreenRatio.
 
     // Imprimimos no terminal informações sobre a GPU do sistema
     const GLubyte *vendor      = glGetString(GL_VENDOR);
@@ -291,18 +302,21 @@ int main(int argc, char* argv[]){
 
         glUseProgram(g_GpuProgramID);
 
-        // Camera Virtual
-        float r = g_CameraDistance;
-        float y = r*sin(g_CameraPhi);
-        float z = r*cos(g_CameraPhi)*cos(g_CameraTheta);
-        float x = r*cos(g_CameraPhi)*sin(g_CameraTheta);
+        float lastTime = (float)glfwGetTime();
+        deltaTime = lastTime - lastFrameTime;
+        lastFrameTime = lastTime;
 
-        glm::vec4 camera_position_c  = glm::vec4(x,y,z,1.0f);
-        glm::vec4 camera_lookat_l    = glm::vec4(0.0f,0.0f,0.0f,1.0f);
-        glm::vec4 camera_view_vector = camera_lookat_l - camera_position_c;
-        glm::vec4 camera_up_vector   = glm::vec4(0.0f,1.0f,0.0f,0.0f);
-        glm::mat4 view = Matrix_Camera_View(camera_position_c, camera_view_vector, camera_up_vector);
-        glm::mat4 projection;
+        if (g_WPressed)
+            Player.ProcessKeyboard(FORWARD, deltaTime);
+        if (g_SPressed)
+            Player.ProcessKeyboard(BACKWARD, deltaTime);
+        if (g_APressed)
+            Player.ProcessKeyboard(LEFT, deltaTime);
+        if (g_DPressed)
+            Player.ProcessKeyboard(RIGHT, deltaTime);
+
+        mat4 view = Player.GetViewMatrix();
+        mat4 projection;
 
         // Note que, no sistema de coordenadas da câmera, os planos near e far
         // estão no sentido negativo! Veja slides 176-204 do documento Aula_09_Projecoes.pdf.
@@ -311,7 +325,7 @@ int main(int argc, char* argv[]){
 
         // Projeção Perspectiva ou Ortográfica
         if (g_UsePerspectiveProjection){
-            float field_of_view = 3.141592 / 3.0f;
+            float field_of_view = PI / 3.0f;
             projection = Matrix_Perspective(field_of_view, g_ScreenRatio, nearplane, farplane);
         }
         else{
@@ -586,12 +600,12 @@ void BuildTrianglesAndAddToVirtualScene(ObjModel* model){
                 model_coefficients.push_back( vy );
                 model_coefficients.push_back( vz );
                 model_coefficients.push_back( 1.0f );
-                bbox_min.x = min(bbox_min.x, vx);
-                bbox_min.y = min(bbox_min.y, vy);
-                bbox_min.z = min(bbox_min.z, vz);
-                bbox_max.x = max(bbox_max.x, vx);
-                bbox_max.y = max(bbox_max.y, vy);
-                bbox_max.z = max(bbox_max.z, vz);
+                bbox_min.x = std::min(bbox_min.x, vx);
+                bbox_min.y = std::min(bbox_min.y, vy);
+                bbox_min.z = std::min(bbox_min.z, vz);
+                bbox_max.x = std::max(bbox_max.x, vx);
+                bbox_max.y = std::max(bbox_max.y, vy);
+                bbox_max.z = std::max(bbox_max.z, vz);
 
                 if ( idx.normal_index != -1 ){
                     const float nx = model->attrib.normals[3*idx.normal_index + 0];
@@ -787,46 +801,27 @@ void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
     }
     if (button == GLFW_MOUSE_BUTTON_MIDDLE && action == GLFW_RELEASE)
         g_MiddleMouseButtonPressed = false;
+
+    //Player.ProcessMouseMovement(g_LastCursorPosX, g_LastCursorPosY);
 }
 
 void CursorPosCallback(GLFWwindow* window, double xpos, double ypos){
-    if (g_LeftMouseButtonPressed){
-        float dx = xpos - g_LastCursorPosX;
-        float dy = ypos - g_LastCursorPosY;
-    
-        g_CameraTheta -= 0.01f*dx;
-        g_CameraPhi   += 0.01f*dy;
-    
-        float phimax = 3.141592f/2;
-        float phimin = -phimax;
-    
-        if (g_CameraPhi > phimax)
-            g_CameraPhi = phimax;
-    
-        if (g_CameraPhi < phimin)
-            g_CameraPhi = phimin;
+    static bool firstMouse = true;
+    static double lastX = WIDTH/2, lastY = HEIGHT/2;
 
-        g_LastCursorPosX = xpos;
-        g_LastCursorPosY = ypos;
+    if (firstMouse) {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
     }
 
-    if (g_RightMouseButtonPressed){
-        float dx = xpos - g_LastCursorPosX;
-        float dy = ypos - g_LastCursorPosY;
-        g_ForearmAngleZ -= 0.01f*dx;
-        g_ForearmAngleX += 0.01f*dy;
-        g_LastCursorPosX = xpos;
-        g_LastCursorPosY = ypos;
-    }
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos;
 
-    if (g_MiddleMouseButtonPressed){
-        float dx = xpos - g_LastCursorPosX;
-        float dy = ypos - g_LastCursorPosY;
-        g_TorsoPositionX += 0.01f*dx;
-        g_TorsoPositionY -= 0.01f*dy;
-        g_LastCursorPosX = xpos;
-        g_LastCursorPosY = ypos;
-    }
+    lastX = xpos;
+    lastY = ypos;
+
+    Player.ProcessMouseMovement(xoffset, yoffset);
 }
 
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset){
@@ -846,7 +841,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
 
-
+    bool pressed = (action != GLFW_RELEASE);
     float delta = 3.141592 / 16;
 
     if (key == GLFW_KEY_X && action == GLFW_PRESS)
@@ -881,6 +876,16 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
         fprintf(stdout,"Shaders recarregados!\n");
         fflush(stdout);
     }
+
+    // Movimento do Jogador
+    if (key == GLFW_KEY_W)
+        g_WPressed = pressed;
+    if (key == GLFW_KEY_S)
+        g_SPressed = pressed;
+    if (key == GLFW_KEY_A)
+        g_APressed = pressed;
+    if (key == GLFW_KEY_D)
+        g_DPressed = pressed;
 }
 
 void ErrorCallback(int error, const char* description){
@@ -937,6 +942,7 @@ void TextRendering_ShowModelViewProjection(GLFWwindow* window,glm::mat4 projecti
     TextRendering_PrintString(window, " Viewport matrix           NDC      In Pixel Coords.", -1.0f, 1.0f-25*pad, 1.0f);
     TextRendering_PrintMatrixVectorProductMoreDigits(window, viewport_mapping, p_ndc, -1.0f, 1.0f-26*pad, 1.0f);
 }
+
 void TextRendering_ShowEulerAngles(GLFWwindow* window){
     if ( !g_ShowInfoText )
         return;

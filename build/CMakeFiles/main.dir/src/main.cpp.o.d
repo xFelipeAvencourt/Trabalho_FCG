@@ -370,4 +370,27 @@ CMakeFiles/main.dir/src/main.cpp.o: \
  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/tiny_obj_loader.h \
  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/stb_image.h \
  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/utils.h \
- /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/matrices.h
+ /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/matrices.h \
+ /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/Personagem.h \
+ /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/glm.hpp \
+ /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/_fixes.hpp \
+ /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/setup.hpp \
+ /usr/include/c++/13/climits \
+ /usr/lib/gcc/x86_64-linux-gnu/13/include/limits.h \
+ /usr/lib/gcc/x86_64-linux-gnu/13/include/syslimits.h \
+ /usr/include/limits.h /usr/include/x86_64-linux-gnu/bits/posix1_lim.h \
+ /usr/include/x86_64-linux-gnu/bits/local_lim.h \
+ /usr/include/linux/limits.h \
+ /usr/include/x86_64-linux-gnu/bits/posix2_lim.h \
+ /usr/include/x86_64-linux-gnu/bits/xopen_lim.h \
+ /usr/include/x86_64-linux-gnu/bits/uio_lim.h /usr/include/c++/13/cfloat \
+ /usr/lib/gcc/x86_64-linux-gnu/13/include/float.h \
+ /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/fwd.hpp \
+ /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/packing.hpp \
+ /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/func_packing.inl \
+ /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/type_half.hpp \
+ /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/setup.hpp \
+ /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/type_half.inl \
+ /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/integer.hpp \
+ /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/func_integer.inl \
+ /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/Constantes.h

@@ -72,8 +72,10 @@ CMakeFiles/main.dir/src/glad.c.o: /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/
   /usr/lib/gcc/x86_64-linux-gnu/13/include/stdint.h
 
 CMakeFiles/main.dir/src/main.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/src/main.cpp \
+  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/Constantes.h \
   /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/GLFW/glfw3.h \
   /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/KHR/khrplatform.h \
+  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/Personagem.h \
   /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glad/glad.h \
   /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/setup.hpp \
   /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/type_mat2x2.hpp \
@@ -199,6 +201,14 @@ CMakeFiles/main.dir/src/main.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FC
   /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/matrix_double4x4_precision.hpp \
   /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/matrix_float4x4.hpp \
   /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/matrix_float4x4_precision.hpp \
+  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/_fixes.hpp \
+  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/func_integer.inl \
+  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/func_packing.inl \
+  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/setup.hpp \
+  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/type_half.hpp \
+  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/type_half.inl \
+  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/fwd.hpp \
+  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/glm.hpp \
   /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/setup.hpp \
   /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/quaternion_relational.hpp \
   /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/quaternion_relational.inl \
@@ -252,7 +262,9 @@ CMakeFiles/main.dir/src/main.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FC
   /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/gtc/vec1.hpp \
   /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/gtc/type_ptr.hpp \
   /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/gtc/type_ptr.inl \
+  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/integer.hpp \
   /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/mat4x4.hpp \
+  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/packing.hpp \
   /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/matrices.h \
   /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/stb_image.h \
   /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/tiny_obj_loader.h \
@@ -338,6 +350,8 @@ CMakeFiles/main.dir/src/main.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FC
   /usr/include/c++/13/cassert \
   /usr/include/c++/13/cctype \
   /usr/include/c++/13/cerrno \
+  /usr/include/c++/13/cfloat \
+  /usr/include/c++/13/climits \
   /usr/include/c++/13/clocale \
   /usr/include/c++/13/cmath \
   /usr/include/c++/13/cstddef \
@@ -383,7 +397,9 @@ CMakeFiles/main.dir/src/main.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FC
   /usr/include/features-time64.h \
   /usr/include/features.h \
   /usr/include/inttypes.h \
+  /usr/include/limits.h \
   /usr/include/linux/errno.h \
+  /usr/include/linux/limits.h \
   /usr/include/locale.h \
   /usr/include/math.h \
   /usr/include/pthread.h \
@@ -412,12 +428,15 @@ CMakeFiles/main.dir/src/main.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FC
   /usr/include/x86_64-linux-gnu/bits/iscanonical.h \
   /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
   /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h \
+  /usr/include/x86_64-linux-gnu/bits/local_lim.h \
   /usr/include/x86_64-linux-gnu/bits/locale.h \
   /usr/include/x86_64-linux-gnu/bits/long-double.h \
   /usr/include/x86_64-linux-gnu/bits/math-vector.h \
   /usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h \
   /usr/include/x86_64-linux-gnu/bits/mathcalls-narrow.h \
   /usr/include/x86_64-linux-gnu/bits/mathcalls.h \
+  /usr/include/x86_64-linux-gnu/bits/posix1_lim.h \
+  /usr/include/x86_64-linux-gnu/bits/posix2_lim.h \
   /usr/include/x86_64-linux-gnu/bits/pthread_stack_min-dynamic.h \
   /usr/include/x86_64-linux-gnu/bits/pthreadtypes-arch.h \
   /usr/include/x86_64-linux-gnu/bits/pthreadtypes.h \
@@ -463,11 +482,13 @@ CMakeFiles/main.dir/src/main.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FC
   /usr/include/x86_64-linux-gnu/bits/types/wint_t.h \
   /usr/include/x86_64-linux-gnu/bits/typesizes.h \
   /usr/include/x86_64-linux-gnu/bits/uintn-identity.h \
+  /usr/include/x86_64-linux-gnu/bits/uio_lim.h \
   /usr/include/x86_64-linux-gnu/bits/waitflags.h \
   /usr/include/x86_64-linux-gnu/bits/waitstatus.h \
   /usr/include/x86_64-linux-gnu/bits/wchar.h \
   /usr/include/x86_64-linux-gnu/bits/wctype-wchar.h \
   /usr/include/x86_64-linux-gnu/bits/wordsize.h \
+  /usr/include/x86_64-linux-gnu/bits/xopen_lim.h \
   /usr/include/x86_64-linux-gnu/c++/13/bits/atomic_word.h \
   /usr/include/x86_64-linux-gnu/c++/13/bits/basic_file.h \
   /usr/include/x86_64-linux-gnu/c++/13/bits/c++allocator.h \
@@ -487,9 +508,12 @@ CMakeFiles/main.dir/src/main.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FC
   /usr/include/x86_64-linux-gnu/sys/select.h \
   /usr/include/x86_64-linux-gnu/sys/single_threaded.h \
   /usr/include/x86_64-linux-gnu/sys/types.h \
+  /usr/lib/gcc/x86_64-linux-gnu/13/include/float.h \
+  /usr/lib/gcc/x86_64-linux-gnu/13/include/limits.h \
   /usr/lib/gcc/x86_64-linux-gnu/13/include/stdarg.h \
   /usr/lib/gcc/x86_64-linux-gnu/13/include/stddef.h \
-  /usr/lib/gcc/x86_64-linux-gnu/13/include/stdint.h
+  /usr/lib/gcc/x86_64-linux-gnu/13/include/stdint.h \
+  /usr/lib/gcc/x86_64-linux-gnu/13/include/syslimits.h
 
 CMakeFiles/main.dir/src/stb_image.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/src/stb_image.cpp \
   /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/stb_image.h \
@@ -1101,13 +1125,9 @@ CMakeFiles/main.dir/src/tiny_obj_loader.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/
 
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/src/textrendering.cpp:
 
-/usr/lib/gcc/x86_64-linux-gnu/13/include/limits.h:
-
-/usr/include/x86_64-linux-gnu/bits/posix2_lim.h:
-
-/usr/include/x86_64-linux-gnu/bits/posix1_lim.h:
-
 /usr/include/c++/13/stdlib.h:
+
+/usr/lib/gcc/x86_64-linux-gnu/13/include/limits.h:
 
 /usr/include/x86_64-linux-gnu/sys/single_threaded.h:
 
@@ -1139,6 +1159,10 @@ CMakeFiles/main.dir/src/tiny_obj_loader.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/
 
 /usr/include/x86_64-linux-gnu/bits/pthread_stack_min-dynamic.h:
 
+/usr/include/x86_64-linux-gnu/bits/posix2_lim.h:
+
+/usr/include/x86_64-linux-gnu/bits/posix1_lim.h:
+
 /usr/include/x86_64-linux-gnu/bits/math-vector.h:
 
 /usr/include/x86_64-linux-gnu/bits/locale.h:
@@ -1158,6 +1182,8 @@ CMakeFiles/main.dir/src/tiny_obj_loader.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/
 /usr/include/errno.h:
 
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/src/stb_image.cpp:
+
+/usr/lib/gcc/x86_64-linux-gnu/13/include/float.h:
 
 /usr/include/ctype.h:
 
@@ -1217,8 +1243,6 @@ CMakeFiles/main.dir/src/tiny_obj_loader.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/
 
 /usr/include/c++/13/cwctype:
 
-/usr/include/c++/13/cstring:
-
 /usr/include/c++/13/cstdlib:
 
 /usr/include/c++/13/cstdio:
@@ -1230,6 +1254,8 @@ CMakeFiles/main.dir/src/tiny_obj_loader.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/
 /usr/include/c++/13/cmath:
 
 /usr/include/c++/13/clocale:
+
+/usr/include/c++/13/climits:
 
 /usr/include/c++/13/cerrno:
 
@@ -1279,6 +1305,8 @@ CMakeFiles/main.dir/src/tiny_obj_loader.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/
 
 /usr/include/c++/13/tuple:
 
+/usr/include/c++/13/cfloat:
+
 /usr/include/c++/13/bits/nested_exception.h:
 
 /usr/include/c++/13/bits/move.h:
@@ -1315,8 +1343,6 @@ CMakeFiles/main.dir/src/tiny_obj_loader.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/
 
 /usr/include/c++/13/bits/cxxabi_init_exception.h:
 
-/usr/include/c++/13/bits/cxxabi_forced.h:
-
 /usr/include/c++/13/bits/stl_tree.h:
 
 /usr/include/c++/13/bits/codecvt.h:
@@ -1325,7 +1351,15 @@ CMakeFiles/main.dir/src/tiny_obj_loader.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/
 
 /usr/include/c++/13/bits/char_traits.h:
 
-/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/vector_bool3.hpp:
+/usr/include/c++/13/bits/basic_string.h:
+
+/usr/include/c++/13/bits/allocator.h:
+
+/usr/include/c++/13/bits/alloc_traits.h:
+
+/usr/include/c++/13/backward/binders.h:
+
+/usr/include/assert.h:
 
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/matrix_float4x3_precision.hpp:
 
@@ -1343,8 +1377,6 @@ CMakeFiles/main.dir/src/tiny_obj_loader.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/
 
 /usr/include/x86_64-linux-gnu/bits/endianness.h:
 
-/usr/include/c++/13/bits/basic_string.h:
-
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/matrix_float2x3.hpp:
 
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/matrix_float2x2_precision.hpp:
@@ -1358,8 +1390,6 @@ CMakeFiles/main.dir/src/tiny_obj_loader.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/compute_common.hpp:
 
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/quaternion_float_precision.hpp:
-
-/usr/include/c++/13/bits/alloc_traits.h:
 
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/matrix_double2x2.hpp:
 
@@ -1395,12 +1425,6 @@ CMakeFiles/main.dir/src/tiny_obj_loader.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/
 
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/type_mat3x2.hpp:
 
-/usr/include/x86_64-linux-gnu/bits/types/struct_tm.h:
-
-/usr/include/c++/13/ext/atomicity.h:
-
-/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/type_mat3x4.hpp:
-
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/matrix_double3x2_precision.hpp:
 
 /usr/include/x86_64-linux-gnu/bits/types/timer_t.h:
@@ -1429,13 +1453,31 @@ CMakeFiles/main.dir/src/tiny_obj_loader.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/
 
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/matrix_float2x4_precision.hpp:
 
+/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/Constantes.h:
+
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/src/main.cpp:
 
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/setup.hpp:
 
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/matrix_double2x4.hpp:
 
+/usr/include/x86_64-linux-gnu/bits/types/struct_sched_param.h:
+
+/usr/include/asm-generic/errno.h:
+
+/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glad/glad.h:
+
 /usr/lib/gcc/x86_64-linux-gnu/13/include/stddef.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/struct_tm.h:
+
+/usr/include/c++/13/ext/atomicity.h:
+
+/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/type_mat3x4.hpp:
+
+/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/Personagem.h:
+
+/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/func_common.inl:
 
 /usr/include/x86_64-linux-gnu/sys/types.h:
 
@@ -1502,6 +1544,12 @@ CMakeFiles/main.dir/src/tiny_obj_loader.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/
 /usr/include/x86_64-linux-gnu/bits/types/cookie_io_functions_t.h:
 
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/vector_bool2.hpp:
+
+/usr/lib/gcc/x86_64-linux-gnu/13/include/mmintrin.h:
+
+/usr/include/c++/13/algorithm:
+
+/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/func_trigonometric.inl:
 
 /usr/include/x86_64-linux-gnu/bits/stdint-least.h:
 
@@ -1601,13 +1649,7 @@ CMakeFiles/main.dir/src/tiny_obj_loader.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/
 
 /usr/include/x86_64-linux-gnu/bits/types/clockid_t.h:
 
-/usr/include/x86_64-linux-gnu/bits/time64.h:
-
 /usr/include/features-time64.h:
-
-/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/vector_bool2_precision.hpp:
-
-/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/gtc/type_ptr.hpp:
 
 /usr/include/endian.h:
 
@@ -1622,6 +1664,10 @@ CMakeFiles/main.dir/src/tiny_obj_loader.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/
 /usr/include/x86_64-linux-gnu/bits/atomic_wide_counter.h:
 
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/type_mat3x4.inl:
+
+/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/vector_bool2_precision.hpp:
+
+/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/gtc/type_ptr.hpp:
 
 /usr/lib/gcc/x86_64-linux-gnu/13/include/stdarg.h:
 
@@ -1646,6 +1692,10 @@ CMakeFiles/main.dir/src/tiny_obj_loader.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/
 /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h:
 
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/vector_bool1_precision.hpp:
+
+/usr/include/c++/13/bits/algorithmfwd.h:
+
+/usr/include/x86_64-linux-gnu/bits/long-double.h:
 
 /usr/include/locale.h:
 
@@ -1684,6 +1734,8 @@ CMakeFiles/main.dir/src/tiny_obj_loader.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/
 /usr/include/c++/13/bits/exception_defines.h:
 
 /usr/include/x86_64-linux-gnu/bits/waitstatus.h:
+
+/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/vector_bool3.hpp:
 
 /usr/include/c++/13/bits/basic_string.tcc:
 
@@ -1743,6 +1795,8 @@ CMakeFiles/main.dir/src/tiny_obj_loader.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/
 
 /usr/include/c++/13/type_traits:
 
+/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/type_half.inl:
+
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/vector_int3.hpp:
 
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/matrices.h:
@@ -1766,8 +1820,6 @@ CMakeFiles/main.dir/src/tiny_obj_loader.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/type_mat4x3.hpp:
 
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/_vectorize.hpp:
-
-/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/func_common.inl:
 
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/gtc/vec1.hpp:
 
@@ -1829,8 +1881,6 @@ CMakeFiles/main.dir/src/tiny_obj_loader.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/
 
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/mat4x3.hpp:
 
-/usr/include/c++/13/bits/allocator.h:
-
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/vector_int3_precision.hpp:
 
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/matrix.hpp:
@@ -1857,9 +1907,25 @@ CMakeFiles/main.dir/src/tiny_obj_loader.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/
 
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/matrix_double4x4_precision.hpp:
 
-/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/type_float.hpp:
+/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/func_integer.inl:
 
-/usr/include/assert.h:
+/usr/include/c++/13/cstring:
+
+/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/func_packing.inl:
+
+/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/type_half.hpp:
+
+/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/quaternion_common.hpp:
+
+/usr/include/x86_64-linux-gnu/bits/dlfcn.h:
+
+/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/quaternion_transform.hpp:
+
+/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/fwd.hpp:
+
+/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/glm.hpp:
+
+/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/type_float.hpp:
 
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/type_quat.hpp:
 
@@ -1869,15 +1935,13 @@ CMakeFiles/main.dir/src/tiny_obj_loader.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/
 
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/quaternion_geometric.inl:
 
-/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/quaternion_common.hpp:
-
-/usr/include/x86_64-linux-gnu/bits/dlfcn.h:
-
-/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/quaternion_transform.hpp:
-
 /usr/include/wchar.h:
 
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/quaternion_common.inl:
+
+/usr/include/c++/13/bits/basic_ios.tcc:
+
+/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/quaternion_double.hpp:
 
 /usr/lib/gcc/x86_64-linux-gnu/13/include/mm_malloc.h:
 
@@ -1923,6 +1987,10 @@ CMakeFiles/main.dir/src/tiny_obj_loader.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/
 
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/scalar_constants.inl:
 
+/usr/include/x86_64-linux-gnu/bits/time64.h:
+
+/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/integer.hpp:
+
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/matrix_double4x4.hpp:
 
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/gtc/constants.hpp:
@@ -1937,6 +2005,10 @@ CMakeFiles/main.dir/src/tiny_obj_loader.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/
 
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/mat4x4.hpp:
 
+/usr/include/c++/13/bits/cxxabi_forced.h:
+
+/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/packing.hpp:
+
 /usr/include/c++/13/bits/hash_bytes.h:
 
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/utils.h:
@@ -1946,25 +2018,3 @@ CMakeFiles/main.dir/src/tiny_obj_loader.cpp.o: /home/lipt/UFRGS/semestre\ 7/FCG/
 /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/tiny_obj_loader.h:
 
 /usr/include/asm-generic/errno-base.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/struct_sched_param.h:
-
-/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glad/glad.h:
-
-/usr/include/asm-generic/errno.h:
-
-/usr/lib/gcc/x86_64-linux-gnu/13/include/mmintrin.h:
-
-/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/func_trigonometric.inl:
-
-/usr/include/c++/13/algorithm:
-
-/usr/include/c++/13/backward/binders.h:
-
-/usr/include/x86_64-linux-gnu/bits/long-double.h:
-
-/usr/include/c++/13/bits/algorithmfwd.h:
-
-/home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/ext/quaternion_double.hpp:
-
-/usr/include/c++/13/bits/basic_ios.tcc:

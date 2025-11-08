@@ -74,8 +74,10 @@ CMakeFiles/main.dir/src/glad.c.o
 
 CMakeFiles/main.dir/src/main.cpp.o
  /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/src/main.cpp
+ /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include/Constantes.h
  /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include/GLFW/glfw3.h
  /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include/KHR/khrplatform.h
+ /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include/Personagem.h
  /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include/glad/glad.h
  /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include/glm/detail/setup.hpp
  /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include/glm/detail/type_mat2x2.hpp
@@ -201,6 +203,14 @@ CMakeFiles/main.dir/src/main.cpp.o
  /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include/glm/ext/matrix_double4x4_precision.hpp
  /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include/glm/ext/matrix_float4x4.hpp
  /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include/glm/ext/matrix_float4x4_precision.hpp
+ /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include/glm/detail/_fixes.hpp
+ /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include/glm/detail/func_integer.inl
+ /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include/glm/detail/func_packing.inl
+ /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include/glm/detail/setup.hpp
+ /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include/glm/detail/type_half.hpp
+ /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include/glm/detail/type_half.inl
+ /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include/glm/fwd.hpp
+ /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include/glm/glm.hpp
  /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include/glm/detail/setup.hpp
  /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include/glm/ext/quaternion_relational.hpp
  /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include/glm/ext/quaternion_relational.inl
@@ -254,7 +264,9 @@ CMakeFiles/main.dir/src/main.cpp.o
  /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include/glm/gtc/vec1.hpp
  /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include/glm/gtc/type_ptr.hpp
  /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include/glm/gtc/type_ptr.inl
+ /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include/glm/integer.hpp
  /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include/glm/mat4x4.hpp
+ /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include/glm/packing.hpp
  /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include/matrices.h
  /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include/stb_image.h
  /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include/tiny_obj_loader.h
@@ -340,6 +352,8 @@ CMakeFiles/main.dir/src/main.cpp.o
  /usr/include/c++/13/cassert
  /usr/include/c++/13/cctype
  /usr/include/c++/13/cerrno
+ /usr/include/c++/13/cfloat
+ /usr/include/c++/13/climits
  /usr/include/c++/13/clocale
  /usr/include/c++/13/cmath
  /usr/include/c++/13/cstddef
@@ -385,7 +399,9 @@ CMakeFiles/main.dir/src/main.cpp.o
  /usr/include/features-time64.h
  /usr/include/features.h
  /usr/include/inttypes.h
+ /usr/include/limits.h
  /usr/include/linux/errno.h
+ /usr/include/linux/limits.h
  /usr/include/locale.h
  /usr/include/math.h
  /usr/include/pthread.h
@@ -414,12 +430,15 @@ CMakeFiles/main.dir/src/main.cpp.o
  /usr/include/x86_64-linux-gnu/bits/iscanonical.h
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h
  /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h
+ /usr/include/x86_64-linux-gnu/bits/local_lim.h
  /usr/include/x86_64-linux-gnu/bits/locale.h
  /usr/include/x86_64-linux-gnu/bits/long-double.h
  /usr/include/x86_64-linux-gnu/bits/math-vector.h
  /usr/include/x86_64-linux-gnu/bits/mathcalls-helper-functions.h
  /usr/include/x86_64-linux-gnu/bits/mathcalls-narrow.h
  /usr/include/x86_64-linux-gnu/bits/mathcalls.h
+ /usr/include/x86_64-linux-gnu/bits/posix1_lim.h
+ /usr/include/x86_64-linux-gnu/bits/posix2_lim.h
  /usr/include/x86_64-linux-gnu/bits/pthread_stack_min-dynamic.h
  /usr/include/x86_64-linux-gnu/bits/pthreadtypes-arch.h
  /usr/include/x86_64-linux-gnu/bits/pthreadtypes.h
@@ -465,11 +484,13 @@ CMakeFiles/main.dir/src/main.cpp.o
  /usr/include/x86_64-linux-gnu/bits/types/wint_t.h
  /usr/include/x86_64-linux-gnu/bits/typesizes.h
  /usr/include/x86_64-linux-gnu/bits/uintn-identity.h
+ /usr/include/x86_64-linux-gnu/bits/uio_lim.h
  /usr/include/x86_64-linux-gnu/bits/waitflags.h
  /usr/include/x86_64-linux-gnu/bits/waitstatus.h
  /usr/include/x86_64-linux-gnu/bits/wchar.h
  /usr/include/x86_64-linux-gnu/bits/wctype-wchar.h
  /usr/include/x86_64-linux-gnu/bits/wordsize.h
+ /usr/include/x86_64-linux-gnu/bits/xopen_lim.h
  /usr/include/x86_64-linux-gnu/c++/13/bits/atomic_word.h
  /usr/include/x86_64-linux-gnu/c++/13/bits/basic_file.h
  /usr/include/x86_64-linux-gnu/c++/13/bits/c++allocator.h
@@ -489,9 +510,12 @@ CMakeFiles/main.dir/src/main.cpp.o
  /usr/include/x86_64-linux-gnu/sys/select.h
  /usr/include/x86_64-linux-gnu/sys/single_threaded.h
  /usr/include/x86_64-linux-gnu/sys/types.h
+ /usr/lib/gcc/x86_64-linux-gnu/13/include/float.h
+ /usr/lib/gcc/x86_64-linux-gnu/13/include/limits.h
  /usr/lib/gcc/x86_64-linux-gnu/13/include/stdarg.h
  /usr/lib/gcc/x86_64-linux-gnu/13/include/stddef.h
  /usr/lib/gcc/x86_64-linux-gnu/13/include/stdint.h
+ /usr/lib/gcc/x86_64-linux-gnu/13/include/syslimits.h
 
 CMakeFiles/main.dir/src/stb_image.cpp.o
  /home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/src/stb_image.cpp
