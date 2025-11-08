@@ -146,11 +146,17 @@ struct SceneObject
     glm::vec3    bbox_max;
 };
 
+///////////////////////////////////////////////////////////////////////
+/////////////////////////Matrizes//////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
 
 map<string, SceneObject> g_VirtualScene;
-
 // Pilha que guardará as matrizes de modelagem.
 stack<glm::mat4>  g_MatrixStack;
+
+///////////////////////////////////////////////////////////////////////
+/////////////////////////CAMERA////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
 
 float g_ScreenRatio = 1.0f;
 
@@ -159,37 +165,37 @@ float g_AngleX = 0.0f;
 float g_AngleY = 0.0f;
 float g_AngleZ = 0.0f;
 
-
-bool g_LeftMouseButtonPressed = false;
-bool g_RightMouseButtonPressed = false; 
-bool g_MiddleMouseButtonPressed = false;
-
 double g_LastCursorPosX, g_LastCursorPosY;
 
 // Variavéis Camera esféricas
-float g_CameraTheta = 0.0f; // Ângulo no plano ZX em relação ao eixo Z
-float g_CameraPhi = 0.0f;   // Ângulo em relação ao eixo Y
 float g_CameraDistance = 3.5f; // Distância da câmera para a origem
 
-Camera Player(glm::vec3(0.0f, 1.0f, 5.0f));
+Camera Player(glm::vec3(0.0f, 0.0f, 5.0f));
 float deltaTime = 0.0f, lastFrameTime = 0.0f;
 
 // Variáveis que controlam rotação do antebraço
 float g_ForearmAngleZ = 0.0f;
 float g_ForearmAngleX = 0.0f;
-
-// Variáveis que controlam translação do torso
 float g_TorsoPositionX = 0.0f;
 float g_TorsoPositionY = 0.0f;
+bool  g_UsePerspectiveProjection = true;
+bool  g_ShowInfoText = true;
 
-bool g_WPressed = false;
-bool g_SPressed = false;
-bool g_DPressed = false;
-bool g_APressed = false;
+bool  g_LeftMouseButtonPressed = false;
+bool  g_RightMouseButtonPressed = false; 
+bool  g_MiddleMouseButtonPressed = false;
 
-bool g_UsePerspectiveProjection = true;
+///////////////////////////////////////////////////////////////////////
+/////////////////////////MOVIMENTO/////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
 
-bool g_ShowInfoText = true;
+bool  g_WPressed = false;
+bool  g_SPressed = false;
+bool  g_DPressed = false;
+bool  g_APressed = false;
+bool  g_SpacePressed = false;
+bool  g_IsJumping = false;
+float g_JumpVelocity = 0.0f;
 
 // Variáveis que definem um programa de GPU (shaders). Veja função LoadShadersFromFiles().
 GLuint g_GpuProgramID = 0;
@@ -221,7 +227,7 @@ int main(int argc, char* argv[]){
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     GLFWwindow* window;
-    window = glfwCreateWindow(800, 600, DADOS, NULL, NULL);
+    window = glfwCreateWindow(WIDTH, HEIGHT, DADOS, NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -314,6 +320,8 @@ int main(int argc, char* argv[]){
             Player.ProcessKeyboard(LEFT, deltaTime);
         if (g_DPressed)
             Player.ProcessKeyboard(RIGHT, deltaTime);
+        if (g_SpacePressed)
+            Player.ProcessKeyboard(JUMP, deltaTime);
 
         mat4 view = Player.GetViewMatrix();
         mat4 projection;
@@ -363,7 +371,8 @@ int main(int argc, char* argv[]){
         DrawVirtualObject("the_bunny");
 
         // Desenhamos o plano do chão
-        model = Matrix_Translate(0.0f,-1.1f,0.0f);
+        model = Matrix_Translate(0.0f,-1.1f,0.0f)
+              * Matrix_Scale(20.0f,20.0f,20.0f);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         glUniform1i(g_object_id_uniform, PLANE);
         DrawVirtualObject("the_plane");
@@ -802,7 +811,6 @@ void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
     if (button == GLFW_MOUSE_BUTTON_MIDDLE && action == GLFW_RELEASE)
         g_MiddleMouseButtonPressed = false;
 
-    //Player.ProcessMouseMovement(g_LastCursorPosX, g_LastCursorPosY);
 }
 
 void CursorPosCallback(GLFWwindow* window, double xpos, double ypos){
@@ -842,7 +850,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
         glfwSetWindowShouldClose(window, GL_TRUE);
 
     bool pressed = (action != GLFW_RELEASE);
-    float delta = 3.141592 / 16;
+    float delta = PI / 16;
 
     if (key == GLFW_KEY_X && action == GLFW_PRESS)
         g_AngleX += (mod & GLFW_MOD_SHIFT) ? -delta : delta;
@@ -851,16 +859,6 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
         g_AngleY += (mod & GLFW_MOD_SHIFT) ? -delta : delta;
     if (key == GLFW_KEY_Z && action == GLFW_PRESS)
         g_AngleZ += (mod & GLFW_MOD_SHIFT) ? -delta : delta;
-
-    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS){
-        g_AngleX = 0.0f;
-        g_AngleY = 0.0f;
-        g_AngleZ = 0.0f;
-        g_ForearmAngleX = 0.0f;
-        g_ForearmAngleZ = 0.0f;
-        g_TorsoPositionX = 0.0f;
-        g_TorsoPositionY = 0.0f;
-    }
 
     if (key == GLFW_KEY_P && action == GLFW_PRESS)
         g_UsePerspectiveProjection = true;
@@ -886,6 +884,18 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
         g_APressed = pressed;
     if (key == GLFW_KEY_D)
         g_DPressed = pressed;
+    if (key == GLFW_KEY_SPACE)
+        g_SpacePressed = pressed;
+/*
+    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+        g_AngleX = 0.0f;
+        g_AngleY = 0.0f;
+        g_AngleZ = 0.0f;
+        g_ForearmAngleX = 0.0f;
+        g_ForearmAngleZ = 0.0f;
+        g_TorsoPositionX = 0.0f;
+        g_TorsoPositionY = 0.0f;
+    }*/
 }
 
 void ErrorCallback(int error, const char* description){

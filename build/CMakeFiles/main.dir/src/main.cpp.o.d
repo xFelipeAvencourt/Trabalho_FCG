@@ -372,6 +372,7 @@ CMakeFiles/main.dir/src/main.cpp.o: \
  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/utils.h \
  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/matrices.h \
  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/Personagem.h \
+ /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/Constantes.h \
  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/glm.hpp \
  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/_fixes.hpp \
  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/setup.hpp \

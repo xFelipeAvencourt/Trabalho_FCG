@@ -1,3 +1,4 @@
+#include "Constantes.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -9,7 +10,8 @@ enum Camera_Movement {
     LEFT,
     RIGHT,
     UP,
-    DOWN
+    DOWN,
+    JUMP
 };
 
 using namespace glm;
@@ -55,27 +57,34 @@ public:
 
     void ProcessKeyboard(Camera_Movement direction, float deltaTime) {
 
-        Position.y = 0.0f;
         float velocity = MovementSpeed * deltaTime;
 
         vec3 move = vec3(0.0f);
 
         if (direction == FORWARD)
-            move += Front * velocity;
+            move += normalize(vec3(Front.x,0.0f,Front.z)) * velocity;
         if (direction == BACKWARD)
-            move -= Front * velocity;
+            move -= normalize(vec3(Front.x,0.0f,Front.z)) * velocity;
         if (direction == LEFT)
-            move -= Right * velocity;
+            move -= normalize(vec3(Right.x,0.0f,Right.z)) * velocity;
         if (direction == RIGHT)
-            move += Right * velocity;
-        if (direction == UP)
-            move += Up * velocity;
-        if (direction == DOWN)
-            move -= Up * velocity;
-
-        if (length(move) > 0) {
-            move = normalize(move) * velocity;
+            move += normalize(vec3(Right.x,0.0f,Right.z)) * velocity;
+        if (direction == JUMP && !isJumping) {
+            isJumping = true;
+            jumpVelocity = jumpForce;
         }
+        if(isJumping){
+            
+            jumpVelocity += GRAVITY * deltaTime;
+            Position.y += jumpVelocity * deltaTime;
+
+            if (Position.y <= GROUND_LEVEL) {
+                Position.y = GROUND_LEVEL;
+                jumpVelocity = 0.0f;
+                isJumping = false;
+            }
+        }
+
 
         Position += move;
     }
@@ -101,6 +110,10 @@ public:
     }
 
 private:
+    bool isJumping = false;
+    float jumpVelocity = 0.0f;
+    const float jumpForce = 8.0f;
+
     void updateCameraVectors() {
         vec3 front;
         front.x = cos(radians(Yaw)) * cos(radians(Pitch));
