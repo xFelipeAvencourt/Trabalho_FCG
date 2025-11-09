@@ -178,7 +178,6 @@ float g_ForearmAngleZ = 0.0f;
 float g_ForearmAngleX = 0.0f;
 float g_TorsoPositionX = 0.0f;
 float g_TorsoPositionY = 0.0f;
-bool  g_UsePerspectiveProjection = true;
 bool  g_ShowInfoText = true;
 
 bool  g_LeftMouseButtonPressed = false;
@@ -196,6 +195,7 @@ bool  g_APressed = false;
 bool  g_SpacePressed = false;
 bool  g_IsJumping = false;
 float g_JumpVelocity = 0.0f;
+bool  g_ghost = false;
 
 // Variáveis que definem um programa de GPU (shaders). Veja função LoadShadersFromFiles().
 GLuint g_GpuProgramID = 0;
@@ -313,36 +313,23 @@ int main(int argc, char* argv[]){
         lastFrameTime = lastTime;
 
         if (g_WPressed)
-            Player.ProcessKeyboard(FORWARD, deltaTime);
+            Player.ProcessKeyboard(FORWARD, deltaTime, g_ghost);
         if (g_SPressed)
-            Player.ProcessKeyboard(BACKWARD, deltaTime);
+            Player.ProcessKeyboard(BACKWARD, deltaTime, g_ghost);
         if (g_APressed)
-            Player.ProcessKeyboard(LEFT, deltaTime);
+            Player.ProcessKeyboard(LEFT, deltaTime, g_ghost);
         if (g_DPressed)
-            Player.ProcessKeyboard(RIGHT, deltaTime);
+            Player.ProcessKeyboard(RIGHT, deltaTime, g_ghost);
         if (g_SpacePressed)
-            Player.ProcessKeyboard(JUMP, deltaTime);
+            Player.ProcessKeyboard(JUMP, deltaTime, g_ghost);
 
+    
         mat4 view = Player.GetViewMatrix();
-        mat4 projection;
-
-        // Note que, no sistema de coordenadas da câmera, os planos near e far
-        // estão no sentido negativo! Veja slides 176-204 do documento Aula_09_Projecoes.pdf.
         float nearplane = -0.1f;
         float farplane  = -10.0f;
+        float field_of_view = PI / 3.0f;
+        mat4 projection = Matrix_Perspective(field_of_view, g_ScreenRatio, nearplane, farplane);
 
-        // Projeção Perspectiva ou Ortográfica
-        if (g_UsePerspectiveProjection){
-            float field_of_view = PI / 3.0f;
-            projection = Matrix_Perspective(field_of_view, g_ScreenRatio, nearplane, farplane);
-        }
-        else{
-            float t = 1.5f*g_CameraDistance/2.5f;
-            float b = -t;
-            float r = t*g_ScreenRatio;
-            float l = -r;
-            projection = Matrix_Orthographic(l, r, b, t, nearplane, farplane);
-        }
 
         glm::mat4 model = Matrix_Identity();
 
@@ -860,11 +847,10 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
     if (key == GLFW_KEY_Z && action == GLFW_PRESS)
         g_AngleZ += (mod & GLFW_MOD_SHIFT) ? -delta : delta;
 
-    if (key == GLFW_KEY_P && action == GLFW_PRESS)
-        g_UsePerspectiveProjection = true;
-
-    if (key == GLFW_KEY_O && action == GLFW_PRESS)
-        g_UsePerspectiveProjection = false;
+    if (key == GLFW_KEY_G && action == GLFW_PRESS){
+        g_ghost = !g_ghost;
+        Player.setGhostMode(g_ghost);
+    }
 
     if (key == GLFW_KEY_H && action == GLFW_PRESS)
         g_ShowInfoText = !g_ShowInfoText;
@@ -886,16 +872,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
         g_DPressed = pressed;
     if (key == GLFW_KEY_SPACE)
         g_SpacePressed = pressed;
-/*
-    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
-        g_AngleX = 0.0f;
-        g_AngleY = 0.0f;
-        g_AngleZ = 0.0f;
-        g_ForearmAngleX = 0.0f;
-        g_ForearmAngleZ = 0.0f;
-        g_TorsoPositionX = 0.0f;
-        g_TorsoPositionY = 0.0f;
-    }*/
+
 }
 
 void ErrorCallback(int error, const char* description){
@@ -972,10 +949,7 @@ void TextRendering_ShowProjection(GLFWwindow* window){
     float lineheight = TextRendering_LineHeight(window);
     float charwidth = TextRendering_CharWidth(window);
 
-    if ( g_UsePerspectiveProjection )
-        TextRendering_PrintString(window, "Perspective", 1.0f-13*charwidth, -1.0f+2*lineheight/10, 1.0f);
-    else
-        TextRendering_PrintString(window, "Orthographic", 1.0f-13*charwidth, -1.0f+2*lineheight/10, 1.0f);
+    TextRendering_PrintString(window, "Orthographic", 1.0f-13*charwidth, -1.0f+2*lineheight/10, 1.0f);
 }
 
 void TextRendering_ShowFramesPerSecond(GLFWwindow* window)

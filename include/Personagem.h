@@ -55,36 +55,66 @@ public:
         return lookAt(Position, Position + Front, Up);
     }
 
-    void ProcessKeyboard(Camera_Movement direction, float deltaTime) {
+    void setGhostMode(bool ghost) {
+        
+        if (!ghost) {
+            float descentSpeed = 1.0f;
+            while (Position.y > GROUND_LEVEL) {
+                Position.y -= descentSpeed * (1.0f / 60.0f);
+            if (Position.y < GROUND_LEVEL)
+                Position.y = GROUND_LEVEL;
+            }
+
+            updateCameraVectors();
+        }
+
+    }
+
+    void ProcessKeyboard(Camera_Movement direction, float deltaTime, bool ghostMode = false) {
 
         float velocity = MovementSpeed * deltaTime;
 
         vec3 move = vec3(0.0f);
-
-        if (direction == FORWARD)
-            move += normalize(vec3(Front.x,0.0f,Front.z)) * velocity;
-        if (direction == BACKWARD)
-            move -= normalize(vec3(Front.x,0.0f,Front.z)) * velocity;
-        if (direction == LEFT)
-            move -= normalize(vec3(Right.x,0.0f,Right.z)) * velocity;
-        if (direction == RIGHT)
-            move += normalize(vec3(Right.x,0.0f,Right.z)) * velocity;
-        if (direction == JUMP && !isJumping) {
-            isJumping = true;
-            jumpVelocity = jumpForce;
+        
+        if(ghostMode) {
+            if (direction == FORWARD)
+                move += Front * velocity;
+            if (direction == BACKWARD)
+                move -= Front * velocity;
+            if (direction == LEFT)
+                move -= Right * velocity;
+            if (direction == RIGHT)
+                move += Right * velocity;
+            if (direction == UP)
+                move += Up * velocity;
+            if (direction == DOWN)
+                move -= Up * velocity;
         }
-        if(isJumping){
-            
-            jumpVelocity += GRAVITY * deltaTime;
-            Position.y += jumpVelocity * deltaTime;
+        else {
+            if (direction == FORWARD)
+                move += normalize(vec3(Front.x,0.0f,Front.z)) * velocity;
+            if (direction == BACKWARD)
+                move -= normalize(vec3(Front.x,0.0f,Front.z)) * velocity;
+            if (direction == LEFT)
+                move -= normalize(vec3(Right.x,0.0f,Right.z)) * velocity;
+            if (direction == RIGHT)
+                move += normalize(vec3(Right.x,0.0f,Right.z)) * velocity;
+            if (direction == JUMP && !isJumping) {
+                isJumping = true;
+                jumpVelocity = jumpForce;
+            }
+            if(isJumping){
+                
+                jumpVelocity += GRAVITY * deltaTime;
+                Position.y += jumpVelocity * deltaTime;
 
-            if (Position.y <= GROUND_LEVEL) {
-                Position.y = GROUND_LEVEL;
-                jumpVelocity = 0.0f;
-                isJumping = false;
+                if (Position.y <= GROUND_LEVEL) {
+                    Position.y = GROUND_LEVEL;
+                    jumpVelocity = 0.0f;
+                    isJumping = false;
+                }
             }
         }
-
 
         Position += move;
     }
