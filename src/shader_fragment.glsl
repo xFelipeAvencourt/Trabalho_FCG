@@ -22,7 +22,6 @@ uniform mat4 projection;
 #define SPHERE 0
 #define BUNNY  1
 #define PLANE  2
-#define WALL   3
 uniform int object_id;
 
 // Parâmetros da axis-aligned bounding box (AABB) do modelo
@@ -133,11 +132,7 @@ void main()
     if ( object_id == PLANE ) {
         Kd0 = texture(TextureImage2, vec2(U,V)).rgb;
         Kd1 = vec3(0.0);
-    } else if ( object_id == WALL ) {
-        // Paredes usam a textura 3 (brick)
-        Kd0 = texture(TextureImage3, vec2(U,V)).rgb;
-        Kd1 = vec3(0.0);
-    } else {
+    }else {
         // Objetos padrão usam TextureImage0 (day) e TextureImage1 (night)
         Kd0 = texture(TextureImage0, vec2(U,V)).rgb;
         Kd1 = texture(TextureImage1, vec2(U,V)).rgb;

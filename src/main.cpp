@@ -345,7 +345,6 @@ int main(int argc, char* argv[]){
         #define SPHERE 0
         #define BUNNY  1
         #define PLANE  2
-        #define WALL   3
 
         // Desenhamos o modelo da esfera
         model = Matrix_Translate(-1.0f,0.0f,0.0f)
