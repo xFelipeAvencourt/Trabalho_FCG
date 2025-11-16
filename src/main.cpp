@@ -266,9 +266,10 @@ int main(int argc, char* argv[]){
     //
     LoadShadersFromFiles();
 
-    // Carregamos duas imagens para serem utilizadas como textura
     LoadTextureImage("../../data/tc-earth_daymap_surface.jpg");
     LoadTextureImage("../../data/tc-earth_nightmap_citylights.gif");
+    LoadTextureImage("../../data/Texture_chao.png");
+    LoadTextureImage("../../data/Texture_brick.png");
 
     // Construímos a representação de objetos geométricos através de malhas de triângulos
     ObjModel spheremodel("../../data/sphere.obj");
@@ -344,6 +345,7 @@ int main(int argc, char* argv[]){
         #define SPHERE 0
         #define BUNNY  1
         #define PLANE  2
+        #define WALL   3
 
         // Desenhamos o modelo da esfera
         model = Matrix_Translate(-1.0f,0.0f,0.0f)
@@ -363,7 +365,7 @@ int main(int argc, char* argv[]){
 
         // Desenhamos o plano do chão
         model = Matrix_Translate(0.0f,-1.1f,0.0f)
-              * Matrix_Scale(20.0f,20.0f,20.0f);
+              * Matrix_Scale(SCALE_FLOUR,SCALE_FLOUR,SCALE_FLOUR);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         glUniform1i(g_object_id_uniform, PLANE);
         DrawVirtualObject("the_plane");
@@ -381,40 +383,41 @@ int main(int argc, char* argv[]){
     return 0;
 }
 
-void LoadTextureImage(const char* filename){
+void LoadTextureImage(const char* filename) {
     printf("Carregando imagem \"%s\"... ", filename);
     stbi_set_flip_vertically_on_load(true);
-    int width;
-    int height;
-    int channels;
-    unsigned char *data = stbi_load(filename, &width, &height, &channels, 3);
 
-    if ( data == NULL ){
+    int width, height, channels;
+    unsigned char* data = stbi_load(filename, &width, &height, &channels, 3);
+    if (!data) {
         fprintf(stderr, "ERROR: Cannot open image file \"%s\".\n", filename);
         exit(EXIT_FAILURE);
     }
     printf("OK (%dx%d).\n", width, height);
-    GLuint texture_id;
-    GLuint sampler_id;
+
+    GLuint texture_id, sampler_id;
     glGenTextures(1, &texture_id);
     glGenSamplers(1, &sampler_id);
-    glSamplerParameteri(sampler_id, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glSamplerParameteri(sampler_id, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glSamplerParameteri(sampler_id, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+    std::string fname(filename);
+    GLint wrap_mode = (fname.find("chao") != std::string::npos || fname.find("ch?o") != std::string::npos ||
+                        fname.find("brick") != std::string::npos || fname.find("Brick") != std::string::npos)
+                        ? GL_MIRRORED_REPEAT
+                        : GL_CLAMP_TO_EDGE;
+
+    glSamplerParameteri(sampler_id, GL_TEXTURE_WRAP_S, wrap_mode);
     glSamplerParameteri(sampler_id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-    glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
-    glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
-    GLuint textureunit = g_NumLoadedTextures;
+
+    GLuint textureunit = g_NumLoadedTextures++;
     glActiveTexture(GL_TEXTURE0 + textureunit);
     glBindTexture(GL_TEXTURE_2D, texture_id);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
     glBindSampler(textureunit, sampler_id);
-    stbi_image_free(data);
 
-    g_NumLoadedTextures += 1;
+    stbi_image_free(data);
 }
 
 void DrawVirtualObject(const char* object_name){
@@ -454,6 +457,7 @@ void LoadShadersFromFiles(){
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage0"), 0);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage1"), 1);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage2"), 2);
+    glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage3"), 3);
     glUseProgram(0);
 }
 
