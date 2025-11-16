@@ -323,6 +323,10 @@ int main(int argc, char* argv[]){
         if (g_SpacePressed)
             Player.ProcessKeyboard(JUMP, deltaTime, g_ghost);
 
+        // Atualiza física por frame (gravidade/pulo), mesmo quando nenhuma tecla de
+        // movimento estiver pressionada. Evita que o jogador "congele no ar".
+        Player.Update(deltaTime);
+
     
         mat4 view = Player.GetViewMatrix();
         float nearplane = -0.1f;

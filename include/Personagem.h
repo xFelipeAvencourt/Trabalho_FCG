@@ -103,17 +103,6 @@ public:
                 isJumping = true;
                 jumpVelocity = jumpForce;
             }
-            if(isJumping){
-                
-                jumpVelocity += GRAVITY * deltaTime;
-                Position.y += jumpVelocity * deltaTime;
-
-                if (Position.y <= GROUND_LEVEL) {
-                    Position.y = GROUND_LEVEL;
-                    jumpVelocity = 0.0f;
-                    isJumping = false;
-                }
-            }
         }
 
         Position += move;
@@ -137,6 +126,18 @@ public:
         Zoom -= (float)yoffset;
         Zoom = std::max(Zoom, 1.0f);
         Zoom = std::min(Zoom, 45.0f);
+    }
+    void Update(float deltaTime) {
+        if (isJumping) {
+            jumpVelocity += GRAVITY * deltaTime;
+            Position.y += jumpVelocity * deltaTime;
+
+            if (Position.y <= GROUND_LEVEL) {
+                Position.y = GROUND_LEVEL;
+                jumpVelocity = 0.0f;
+                isJumping = false;
+            }
+        }
     }
 
 private:
