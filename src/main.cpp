@@ -138,6 +138,7 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 ///////////////////////////////////////////////////////////////////////
 
 void SalaPrincipal();
+void DrawOBJ(int objectId,const std::vector<std::string>& parts,const glm::vec3& position,float size,const glm::vec3& rotation);
 
 // Definimos uma estrutura que armazenará dados necessários para renderizar
 // cada objeto da cena virtual.
@@ -272,8 +273,10 @@ int main(int argc, char* argv[]){
     //
     LoadShadersFromFiles();
 
-    LoadTextureImage("../../data/Texture_chao.png");
-    LoadTextureImage("../../data/Texture_brick.png");
+    LoadTextureImage("../../data/Textures/chao.png");
+    LoadTextureImage("../../data/Textures/brick.png");
+    LoadTextureImage("../../data/Textures/door_txt.jpg");
+    LoadTextureImage("../../data/Textures/round_table.png");
 
     ObjModel planemodel("../../data/plane.obj");
     ComputeNormals(&planemodel);
@@ -282,6 +285,14 @@ int main(int argc, char* argv[]){
     ObjModel wallmodel("../../data/wall.obj");
     ComputeNormals(&wallmodel);
     BuildTrianglesAndAddToVirtualScene(&wallmodel);
+
+    ObjModel tablemodel("../../data/table.obj");
+    ComputeNormals(&tablemodel);
+    BuildTrianglesAndAddToVirtualScene(&tablemodel);
+
+    ObjModel doormodel("../../data/door.obj");
+    ComputeNormals(&doormodel);
+    BuildTrianglesAndAddToVirtualScene(&doormodel);
 
     if ( argc > 1 )
     {
@@ -1120,8 +1131,12 @@ void SalaPrincipal(){
 
     #define PLANE 1
     #define WALL  2
+    #define TABLE 3
+    #define DOOR  4
 
     glm::mat4 model = Matrix_Identity();
+    vector<string> objeto;
+    glm::vec3 posicao, rotacao;
 
     // Chão
     model = Matrix_Translate(0.0f,-1.1f,0.0f)
@@ -1129,6 +1144,12 @@ void SalaPrincipal(){
     glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
     glUniform1i(g_object_id_uniform, PLANE);
     DrawVirtualObject("the_plane");
+
+    // Mesa
+    objeto = {"Table_Circle.004","Leg_Cylinder.001","Support_Cube"};
+    posicao = {0.0f, -1.1f, 0.0f};
+    rotacao = {0.0f, 0.0f, 0.0f};
+    DrawOBJ(TABLE,objeto,posicao,0.3f,rotacao);
 
     // Teto
     model = Matrix_Translate(0.0f,SCALE_WALL,0.0f)
@@ -1154,6 +1175,12 @@ void SalaPrincipal(){
     glUniform1i(g_object_id_uniform, WALL);
     DrawVirtualObject("the_wall");
 
+    // Porta
+    objeto  = {"10057_wooden_door_v1","10057_wooden_door_frame_v1"};
+    posicao = {0.0f, 0.0f, SCALE_FLOUR};
+    rotacao = {PI/2.0f, 0.0f, 0.0f};
+    DrawOBJ(DOOR, objeto,posicao,SCALE_WALL/4,rotacao);
+   
     // Parede da porta - esquerda
     model = Matrix_Translate(0.60f*SCALE_FLOUR, SCALE_WALL / 4, SCALE_FLOUR)
             * Matrix_Rotate_X(-PI/2)
@@ -1163,9 +1190,9 @@ void SalaPrincipal(){
     DrawVirtualObject("the_wall");
 
     // Parede da porta - cima
-    model = Matrix_Translate(0.0f, SCALE_WALL + 0.4f*SCALE_WALL, SCALE_FLOUR)
+    model = Matrix_Translate(0.0f, 0.65f*SCALE_FLOUR, SCALE_FLOUR)
             * Matrix_Rotate_X(-PI/2)
-            * Matrix_Scale(0.1f*SCALE_FLOUR, SCALE_WALL, SCALE_WALL);
+            * Matrix_Scale(0.1f*SCALE_FLOUR, 0.01f*SCALE_FLOUR, SCALE_WALL);
     glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(g_object_id_uniform, WALL);
     DrawVirtualObject("the_wall");
@@ -1187,6 +1214,59 @@ void SalaPrincipal(){
     glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(g_object_id_uniform, WALL);
     DrawVirtualObject("the_wall");
+}
+
+// Função adaptada para desenhar objetos compostos por várias partes - gerado por I.A.
+void DrawOBJ(int objectId,const std::vector<std::string>& parts,const glm::vec3& position,float size,const glm::vec3& rotation) {
+    glm::vec3 bbox_min(std::numeric_limits<float>::max());
+    glm::vec3 bbox_max(std::numeric_limits<float>::lowest());
+
+    for (const auto& partName : parts){
+        auto it = g_VirtualScene.find(partName);
+        if (it != g_VirtualScene.end() && it->second.vertex_array_object_id != 0){            
+            bbox_min.x = std::min(bbox_min.x, it->second.bbox_min.x);
+            bbox_min.y = std::min(bbox_min.y, it->second.bbox_min.y);
+            bbox_min.z = std::min(bbox_min.z, it->second.bbox_min.z);
+            
+            bbox_max.x = std::max(bbox_max.x, it->second.bbox_max.x);
+            bbox_max.y = std::max(bbox_max.y, it->second.bbox_max.y);
+            bbox_max.z = std::max(bbox_max.z, it->second.bbox_max.z);
+        }
+    }
+
+    const glm::vec3 center = (bbox_min + bbox_max) * 0.5f;
+    const float width = bbox_max.x - bbox_min.x;
+    const float depth = bbox_max.z - bbox_min.z;
+    const float desiredSize = size * SCALE_FLOUR;
+    
+    float scale = 1.0f;
+    const float biggestDimension = std::max(width, depth);
+
+    if (biggestDimension > std::numeric_limits<float>::epsilon())
+        scale = desiredSize / biggestDimension;
+
+    const float scaledMinY = (bbox_min.y - center.y) * scale;
+    const float worldY = position.y - scaledMinY;
+
+    const glm::mat4 rotationMatrix = 
+        Matrix_Rotate_Z(rotation.z) *
+        Matrix_Rotate_Y(rotation.y) *
+        Matrix_Rotate_X(rotation.x);
+
+    const glm::mat4 modelMatrix =
+        Matrix_Translate(position.x, worldY, position.z) *
+        rotationMatrix *
+        Matrix_Scale(scale, scale, scale) *
+        Matrix_Translate(-center.x, -center.y, -center.z);
+
+    glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+    glUniform1i(g_object_id_uniform, objectId);
+
+    for (const auto& partName : parts) {
+        auto it = g_VirtualScene.find(partName);
+        if (it != g_VirtualScene.end() && it->second.vertex_array_object_id != 0)
+            DrawVirtualObject(partName.c_str());
+    }
 }
 
 // set makeprg=cd\ ..\ &&\ make\ run\ >/dev/null

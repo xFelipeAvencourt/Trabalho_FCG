@@ -5,6 +5,7 @@
 // Dimensoes da sala
 #define SCALE_FLOUR 5.0f
 #define SCALE_WALL 2.0f
+#define SCALE_TABLE 0.5f
 
 // CHAO
 #define GROUND_LEVEL 0.0f

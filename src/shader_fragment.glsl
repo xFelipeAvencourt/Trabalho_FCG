@@ -21,6 +21,8 @@ uniform mat4 projection;
 // Identificador que define qual objeto está sendo desenhado no momento
 #define PLANE  1
 #define WALL   2
+#define TABLE  3
+#define DOOR   4
 uniform int object_id;
 
 // Parâmetros da axis-aligned bounding box (AABB) do modelo
@@ -30,6 +32,8 @@ uniform vec4 bbox_max;
 // Variáveis para acesso das imagens de textura
 uniform sampler2D TextureImage0;
 uniform sampler2D TextureImage1;
+uniform sampler2D TextureImage2;
+uniform sampler2D TextureImage3;
 
 
 // O valor de saída ("out") de um Fragment Shader é a cor final do fragmento.
@@ -67,20 +71,34 @@ void main()
     float U = 0.0;
     float V = 0.0;
 
-    vec3 Kd0;
-    vec3 Kd1;
+    // Cor/tex default para objetos que não sejam o chão ou parede
+    vec3 Kd0 = vec3(0.8, 0.8, 0.8);
+    vec3 Kd1 = vec3(0.0, 0.0, 0.0);
 
     if ( object_id == PLANE || object_id == WALL){
-        float tiling = 2; // repetição da textura
+        float tiling = 2.0;
         U = texcoords.x * tiling;
         V = texcoords.y * tiling;
     }
-    if ( object_id == PLANE ) {
+    else if( object_id == TABLE || object_id == DOOR){
+        float tiling = 1.0;
+        U = texcoords.x * tiling;
+        V = texcoords.y * tiling;
+    }
+    if ( object_id == PLANE ){
         Kd0 = texture(TextureImage0, vec2(U,V)).rgb;
         Kd1 = vec3(0.0);
     }
-    if ( object_id == WALL ) {
+    else if ( object_id == WALL ) {
         Kd0 = texture(TextureImage1, vec2(U,V)).rgb;
+        Kd1 = vec3(0.0);
+    }
+    else if ( object_id == TABLE){
+        Kd0 = texture(TextureImage3, vec2(U,V)).rgb;
+        Kd1 = vec3(0.0);
+    }
+    else if ( object_id == DOOR ) {
+        Kd0 = texture(TextureImage2, vec2(U,V)).rgb;
         Kd1 = vec3(0.0);
     }
 
