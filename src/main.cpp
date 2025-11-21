@@ -31,7 +31,7 @@
 #include "Personagem.h"
 #include "Constantes.h"
 
-#define DADOS "INF01047 - 00342904 - Felipe Avencourt Soares"
+#define DADOS "INF01047 - 00342904 - Felipe Avencourt && Fernando"
 
 using namespace std;
 
@@ -133,6 +133,12 @@ void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 void CursorPosCallback(GLFWwindow* window, double xpos, double ypos);
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
+////////////////////////////////////////////////////////////////////////
+///////////////////// Funções auxiliares ///////////////////////////////
+///////////////////////////////////////////////////////////////////////
+
+void SalaPrincipal();
+
 // Definimos uma estrutura que armazenará dados necessários para renderizar
 // cada objeto da cena virtual.
 struct SceneObject
@@ -170,7 +176,7 @@ double g_LastCursorPosX, g_LastCursorPosY;
 // Variavéis Camera esféricas
 float g_CameraDistance = 3.5f; // Distância da câmera para a origem
 
-Camera Player(glm::vec3(0.0f, 0.0f, 5.0f));
+Camera Player(glm::vec3(0.0f, 0.0f, 4.0f));
 float deltaTime = 0.0f, lastFrameTime = 0.0f;
 
 // Variáveis que controlam rotação do antebraço
@@ -266,23 +272,16 @@ int main(int argc, char* argv[]){
     //
     LoadShadersFromFiles();
 
-    LoadTextureImage("../../data/tc-earth_daymap_surface.jpg");
-    LoadTextureImage("../../data/tc-earth_nightmap_citylights.gif");
     LoadTextureImage("../../data/Texture_chao.png");
     LoadTextureImage("../../data/Texture_brick.png");
-
-    // Construímos a representação de objetos geométricos através de malhas de triângulos
-    ObjModel spheremodel("../../data/sphere.obj");
-    ComputeNormals(&spheremodel);
-    BuildTrianglesAndAddToVirtualScene(&spheremodel);
-
-    ObjModel bunnymodel("../../data/bunny.obj");
-    ComputeNormals(&bunnymodel);
-    BuildTrianglesAndAddToVirtualScene(&bunnymodel);
 
     ObjModel planemodel("../../data/plane.obj");
     ComputeNormals(&planemodel);
     BuildTrianglesAndAddToVirtualScene(&planemodel);
+
+    ObjModel wallmodel("../../data/wall.obj");
+    ComputeNormals(&wallmodel);
+    BuildTrianglesAndAddToVirtualScene(&wallmodel);
 
     if ( argc > 1 )
     {
@@ -303,7 +302,6 @@ int main(int argc, char* argv[]){
 
     while (!glfwWindowShouldClose(window))
     {
-        // BackGround color
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -324,8 +322,6 @@ int main(int argc, char* argv[]){
         if (g_SpacePressed)
             Player.ProcessKeyboard(JUMP, deltaTime, g_ghost);
 
-        // Atualiza física por frame (gravidade/pulo), mesmo quando nenhuma tecla de
-        // movimento estiver pressionada. Evita que o jogador "congele no ar".
         Player.Update(deltaTime);
 
     
@@ -335,40 +331,11 @@ int main(int argc, char* argv[]){
         float field_of_view = PI / 3.0f;
         mat4 projection = Matrix_Perspective(field_of_view, g_ScreenRatio, nearplane, farplane);
 
-
-        glm::mat4 model = Matrix_Identity();
-
         // Enviamos as matrizes "view" e "projection" para a GPU
         glUniformMatrix4fv(g_view_uniform       , 1 , GL_FALSE , glm::value_ptr(view));
         glUniformMatrix4fv(g_projection_uniform , 1 , GL_FALSE , glm::value_ptr(projection));
 
-        #define SPHERE 0
-        #define BUNNY  1
-        #define PLANE  2
-
-        // Desenhamos o modelo da esfera
-        model = Matrix_Translate(-1.0f,0.0f,0.0f)
-              * Matrix_Rotate_Z(0.6f)
-              * Matrix_Rotate_X(0.2f)
-              * Matrix_Rotate_Y(g_AngleY + (float)glfwGetTime() * 0.1f);
-        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, SPHERE);
-        DrawVirtualObject("the_sphere");
-
-        // Desenhamos o modelo do coelho
-        model = Matrix_Translate(1.0f,0.0f,0.0f)
-              * Matrix_Rotate_X(g_AngleX + (float)glfwGetTime() * 0.1f);
-        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, BUNNY);
-        DrawVirtualObject("the_bunny");
-
-        // Desenhamos o plano do chão
-        model = Matrix_Translate(0.0f,-1.1f,0.0f)
-              * Matrix_Scale(SCALE_FLOUR,SCALE_FLOUR,SCALE_FLOUR);
-        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, PLANE);
-        DrawVirtualObject("the_plane");
-
+        SalaPrincipal();
 
         TextRendering_ShowEulerAngles(window);
         TextRendering_ShowProjection(window);
@@ -1147,6 +1114,79 @@ void PrintObjModelInfo(ObjModel* model){
     }
     printf("\n");
   }
+}
+
+void SalaPrincipal(){
+
+    #define PLANE 1
+    #define WALL  2
+
+    glm::mat4 model = Matrix_Identity();
+
+    // Chão
+    model = Matrix_Translate(0.0f,-1.1f,0.0f)
+            * Matrix_Scale(SCALE_FLOUR,SCALE_FLOUR,SCALE_FLOUR);
+    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+    glUniform1i(g_object_id_uniform, PLANE);
+    DrawVirtualObject("the_plane");
+
+    // Teto
+    model = Matrix_Translate(0.0f,SCALE_WALL,0.0f)
+            * Matrix_Rotate_X(PI)
+            * Matrix_Scale(SCALE_FLOUR,SCALE_FLOUR,SCALE_FLOUR);
+    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+    glUniform1i(g_object_id_uniform, WALL);
+    DrawVirtualObject("the_wall");
+
+    // Parede frontal
+    model = Matrix_Translate(0.0f,SCALE_WALL/4,-SCALE_FLOUR)
+            * Matrix_Rotate_X(PI/2)
+            * Matrix_Scale(SCALE_FLOUR,SCALE_WALL,SCALE_WALL);
+    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+    glUniform1i(g_object_id_uniform, WALL);
+    DrawVirtualObject("the_wall");
+
+    // Parede da porta - direita
+    model = Matrix_Translate(-0.60f*SCALE_FLOUR, SCALE_WALL / 4, SCALE_FLOUR)
+            * Matrix_Rotate_X(-PI/2)
+            * Matrix_Scale(0.50f*SCALE_FLOUR, SCALE_WALL, SCALE_WALL);
+    glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(g_object_id_uniform, WALL);
+    DrawVirtualObject("the_wall");
+
+    // Parede da porta - esquerda
+    model = Matrix_Translate(0.60f*SCALE_FLOUR, SCALE_WALL / 4, SCALE_FLOUR)
+            * Matrix_Rotate_X(-PI/2)
+            * Matrix_Scale(0.50f*SCALE_FLOUR, SCALE_WALL, SCALE_WALL);
+    glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(g_object_id_uniform, WALL);
+    DrawVirtualObject("the_wall");
+
+    // Parede da porta - cima
+    model = Matrix_Translate(0.0f, SCALE_WALL + 0.4f*SCALE_WALL, SCALE_FLOUR)
+            * Matrix_Rotate_X(-PI/2)
+            * Matrix_Scale(0.1f*SCALE_FLOUR, SCALE_WALL, SCALE_WALL);
+    glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(g_object_id_uniform, WALL);
+    DrawVirtualObject("the_wall");
+
+    // Parede esquerda
+    model = Matrix_Translate(-SCALE_FLOUR, SCALE_WALL / 4, 0.0f)
+            * Matrix_Rotate_X(PI / 2)
+            * Matrix_Rotate_Z(-PI / 2)
+            * Matrix_Scale(SCALE_FLOUR, SCALE_WALL, SCALE_WALL);
+    glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(g_object_id_uniform, WALL);
+    DrawVirtualObject("the_wall");
+
+    // Parede direita
+    model = Matrix_Translate(SCALE_FLOUR, SCALE_WALL / 4, 0.0f)
+            * Matrix_Rotate_X(PI / 2)
+            * Matrix_Rotate_Z(PI / 2)
+            * Matrix_Scale(SCALE_FLOUR, SCALE_WALL, SCALE_WALL);
+    glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform1i(g_object_id_uniform, WALL);
+    DrawVirtualObject("the_wall");
 }
 
 // set makeprg=cd\ ..\ &&\ make\ run\ >/dev/null

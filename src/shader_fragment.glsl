@@ -19,9 +19,8 @@ uniform mat4 view;
 uniform mat4 projection;
 
 // Identificador que define qual objeto está sendo desenhado no momento
-#define SPHERE 0
-#define BUNNY  1
-#define PLANE  2
+#define PLANE  1
+#define WALL   2
 uniform int object_id;
 
 // Parâmetros da axis-aligned bounding box (AABB) do modelo
@@ -31,8 +30,6 @@ uniform vec4 bbox_max;
 // Variáveis para acesso das imagens de textura
 uniform sampler2D TextureImage0;
 uniform sampler2D TextureImage1;
-uniform sampler2D TextureImage2;
-uniform sampler2D TextureImage3;
 
 
 // O valor de saída ("out") de um Fragment Shader é a cor final do fragmento.
@@ -70,72 +67,21 @@ void main()
     float U = 0.0;
     float V = 0.0;
 
-    if ( object_id == SPHERE )
-    {
-        // PREENCHA AQUI as coordenadas de textura da esfera, computadas com
-        // projeção esférica EM COORDENADAS DO MODELO. Utilize como referência
-        // o slides 134-150 do documento Aula_20_Mapeamento_de_Texturas.pdf.
-        // A esfera que define a projeção deve estar centrada na posição
-        // "bbox_center" definida abaixo.
+    vec3 Kd0;
+    vec3 Kd1;
 
-        // Você deve utilizar:
-        //   função 'length( )' : comprimento Euclidiano de um vetor
-        //   função 'atan( , )' : arcotangente. Veja https://en.wikipedia.org/wiki/Atan2.
-        //   função 'asin( )'   : seno inverso.
-        //   constante M_PI
-        //   variável position_model
-
-        vec4 bbox_center = (bbox_min + bbox_max) / 2.0;
-
-        vec3 pLinha = position_model.xyz - bbox_center.xyz;
-        vec3 pLinha_normalized = normalize(pLinha);
-
-        float rho   = length(pLinha.xy);
-        float theta = atan(pLinha.x,pLinha.z);
-        float phi   = asin(pLinha.y / length(pLinha));
-
-        U = (theta + M_PI) / (2.0 * M_PI);
-        V = (phi + M_PI/2.0) / M_PI;
-
-    }
-    else if ( object_id == BUNNY )
-    {
-        // PREENCHA AQUI as coordenadas de textura do coelho, computadas com
-        // projeção planar XY em COORDENADAS DO MODELO. Utilize como referência
-        // o slides 99-104 do documento Aula_20_Mapeamento_de_Texturas.pdf,
-        // e também use as variáveis min*/max* definidas abaixo para normalizar
-        // as coordenadas de textura U e V dentro do intervalo [0,1]. Para
-        // tanto, veja por exemplo o mapeamento da variável 'p_v' utilizando
-        // 'h' no slides 158-160 do documento Aula_20_Mapeamento_de_Texturas.pdf.
-        // Veja também a Questão 4 do Questionário 4 no Moodle.
-
-        float minx = bbox_min.x;
-        float maxx = bbox_max.x;
-
-        float miny = bbox_min.y;
-        float maxy = bbox_max.y;
-
-        float minz = bbox_min.z;
-        float maxz = bbox_max.z;
-
-        U = (position_model.x - minx) / (maxx - minx);
-        V = (position_model.y - miny) / (maxy - miny);
-    }
-    else if ( object_id == PLANE )
-    {
+    if ( object_id == PLANE || object_id == WALL){
         float tiling = 2; // repetição da textura
         U = texcoords.x * tiling;
         V = texcoords.y * tiling;
     }
-    vec3 Kd0;
-    vec3 Kd1;
     if ( object_id == PLANE ) {
-        Kd0 = texture(TextureImage2, vec2(U,V)).rgb;
-        Kd1 = vec3(0.0);
-    }else {
-        // Objetos padrão usam TextureImage0 (day) e TextureImage1 (night)
         Kd0 = texture(TextureImage0, vec2(U,V)).rgb;
-        Kd1 = texture(TextureImage1, vec2(U,V)).rgb;
+        Kd1 = vec3(0.0);
+    }
+    if ( object_id == WALL ) {
+        Kd0 = texture(TextureImage1, vec2(U,V)).rgb;
+        Kd1 = vec3(0.0);
     }
 
     // Equação de Iluminação
