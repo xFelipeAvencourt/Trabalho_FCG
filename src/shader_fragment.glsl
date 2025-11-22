@@ -18,23 +18,30 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
+// Parâmetros adicionais para o cone de luz
+uniform vec3 light_position;
+uniform vec3 light_color;
+uniform vec3 light_direction;
+
+uniform float light_intensity;
+uniform float light_cutoff_angle;
+uniform float light_outer_cutoff;
+uniform float light_range;
+
 // Identificador que define qual objeto está sendo desenhado no momento
 #define PLANE  1
 #define WALL   2
 #define TABLE  3
-#define DOOR   4
+#define LAMP   4
+#define DOOR   5
 uniform int object_id;
-
-// Parâmetros da axis-aligned bounding box (AABB) do modelo
-uniform vec4 bbox_min;
-uniform vec4 bbox_max;
 
 // Variáveis para acesso das imagens de textura
 uniform sampler2D TextureImage0;
 uniform sampler2D TextureImage1;
 uniform sampler2D TextureImage2;
 uniform sampler2D TextureImage3;
-
+uniform sampler2D TextureImage4;
 
 // O valor de saída ("out") de um Fragment Shader é a cor final do fragmento.
 out vec4 color;
@@ -45,42 +52,36 @@ out vec4 color;
 
 void main()
 {
-    // Obtemos a posição da câmera utilizando a inversa da matriz que define o
-    // sistema de coordenadas da câmera.
+
     vec4 origin = vec4(0.0, 0.0, 0.0, 1.0);
     vec4 camera_position = inverse(view) * origin;
-
-    // O fragmento atual é coberto por um ponto que percente à superfície de um
-    // dos objetos virtuais da cena. Este ponto, p, possui uma posição no
-    // sistema de coordenadas global (World coordinates). Esta posição é obtida
-    // através da interpolação, feita pelo rasterizador, da posição de cada
-    // vértice.
     vec4 p = position_world;
 
-    // Normal do fragmento atual, interpolada pelo rasterizador a partir das
-    // normais de cada vértice.
     vec4 n = normalize(normal);
 
-    // Vetor que define o sentido da fonte de luz em relação ao ponto atual.
-    vec4 l = normalize(vec4(1.0,1.0,0.0,0.0));
+    vec3 p3 = p.xyz;
+    vec3 n3 = normalize(n.xyz);
 
-    // Vetor que define o sentido da câmera em relação ao ponto atual.
-    vec4 v = normalize(camera_position - p);
+    vec3 l3 = normalize(light_position - p3);
 
-    // Coordenadas de textura U e V
+    vec3 v3 = normalize((camera_position - p).xyz);
+
     float U = 0.0;
     float V = 0.0;
 
-    // Cor/tex default para objetos que não sejam o chão ou parede
     vec3 Kd0 = vec3(0.8, 0.8, 0.8);
     vec3 Kd1 = vec3(0.0, 0.0, 0.0);
 
+/////////////////////////////////////////////
+//  TEXTURAS
+/////////////////////////////////////////////
+    
     if ( object_id == PLANE || object_id == WALL){
-        float tiling = 2.0;
+        float tiling = 4.0;
         U = texcoords.x * tiling;
         V = texcoords.y * tiling;
     }
-    else if( object_id == TABLE || object_id == DOOR){
+    else if( object_id == TABLE || object_id == DOOR || object_id == LAMP){
         float tiling = 1.0;
         U = texcoords.x * tiling;
         V = texcoords.y * tiling;
@@ -94,38 +95,66 @@ void main()
         Kd1 = vec3(0.0);
     }
     else if ( object_id == TABLE){
+        Kd0 = texture(TextureImage2, vec2(U,V)).rgb;
+        Kd1 = vec3(0.0);
+    }
+    else if ( object_id == LAMP) {
         Kd0 = texture(TextureImage3, vec2(U,V)).rgb;
         Kd1 = vec3(0.0);
     }
     else if ( object_id == DOOR ) {
-        Kd0 = texture(TextureImage2, vec2(U,V)).rgb;
+        Kd0 = texture(TextureImage4, vec2(U,V)).rgb;
         Kd1 = vec3(0.0);
     }
+/////////////////////////////////////////////
+//  LUZ
+/////////////////////////////////////////////
 
-    // Equação de Iluminação
-    float lambert = max(0,dot(n,l));
+    float cone_intensity = 1.0;
+    float distance_attenuation = 1.0;
 
-    // Transição suave
-    color.rgb = Kd0 * lambert + Kd1 * (1.0 - lambert);
+    if (object_id == TABLE || object_id == PLANE) {
 
-    color.rgb += Kd0 * 0.01;
+        vec3 light_to_point = normalize(p3 - light_position);
+        vec3 spot_dir = normalize(light_direction);
+        float cosTheta = dot(light_to_point, spot_dir);
+        float cosInner = cos(light_cutoff_angle);
+        float cosOuter = cos(light_outer_cutoff);
 
-    // NOTE: Se você quiser fazer o rendering de objetos transparentes, é
-    // necessário:
-    // 1) Habilitar a operação de "blending" de OpenGL logo antes de realizar o
-    //    desenho dos objetos transparentes, com os comandos abaixo no código C++:
-    //      glEnable(GL_BLEND);
-    //      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    // 2) Realizar o desenho de todos objetos transparentes *após* ter desenhado
-    //    todos os objetos opacos; e
-    // 3) Realizar o desenho de objetos transparentes ordenados de acordo com
-    //    suas distâncias para a câmera (desenhando primeiro objetos
-    //    transparentes que estão mais longe da câmera).
-    // Alpha default = 1 = 100% opaco = 0% transparente
+        if (cosInner < cosOuter){
+            float tmp = cosInner; cosInner = cosOuter; cosOuter = tmp;
+        }
+
+        float smoothFactor = max(0.0001, cosInner - cosOuter);
+        cone_intensity = clamp((cosTheta - cosOuter) / smoothFactor, 0.0, 1.0);
+        float distance = length(light_position - p3);
+        distance_attenuation = 1.0 / (1.0 + 0.5 * distance + 0.01 * distance * distance);
+        float range_attenuation = 1.0 - smoothstep(light_range * 0.8, light_range, distance);
+
+        cone_intensity *= distance_attenuation * range_attenuation;
+
+        if (object_id == PLANE)
+            cone_intensity *= 0.3;
+    }
+
+    float lambert = max(0.0, dot(n3, l3));
+    vec3 base = Kd0 * lambert + Kd1 * (1.0 - lambert);
+    vec3 diffuse = base * light_color * light_intensity;
+    vec3 ambient = Kd0 * 0.01;
+
+    if (object_id == TABLE || object_id == PLANE)
+        diffuse *= cone_intensity;
+
+    if (object_id == WALL || object_id == DOOR) {
+        float distance_wall = length(light_position - p3);
+        float wall_atten = 1.0 / (1.0 + 10 * distance_wall + 0.1 * distance_wall * distance_wall);
+        diffuse *= wall_atten;
+    }
+
+    if ((object_id == TABLE || object_id == PLANE) && cone_intensity < 0.1)
+        color.rgb = ambient;
+    else
+        color.rgb = diffuse + ambient;
     color.a = 1;
-
-    // Cor final com correção gamma, considerando monitor sRGB.
-    // Veja https://en.wikipedia.org/w/index.php?title=Gamma_correction&oldid=751281772#Windows.2C_Mac.2C_sRGB_and_TV.2Fvideo_standard_gammas
     color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
-} 
-
+}

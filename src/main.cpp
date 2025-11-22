@@ -213,6 +213,12 @@ GLint g_object_id_uniform;
 GLint g_bbox_min_uniform;
 GLint g_bbox_max_uniform;
 
+// LUZ
+GLint g_light_direction_uniform;
+GLint g_light_cutoff_angle_uniform;
+GLint g_light_outer_cutoff_uniform;
+GLint g_light_range_uniform;
+
 GLuint g_NumLoadedTextures = 0;
 
 int main(int argc, char* argv[]){
@@ -275,8 +281,9 @@ int main(int argc, char* argv[]){
 
     LoadTextureImage("../../data/Textures/chao.png");
     LoadTextureImage("../../data/Textures/brick.png");
-    LoadTextureImage("../../data/Textures/door_txt.jpg");
     LoadTextureImage("../../data/Textures/round_table.png");
+    LoadTextureImage("../../data/Textures/lamp_grey.jpg");
+    LoadTextureImage("../../data/Textures/door_txt.jpg");
 
     ObjModel planemodel("../../data/plane.obj");
     ComputeNormals(&planemodel);
@@ -293,6 +300,10 @@ int main(int argc, char* argv[]){
     ObjModel doormodel("../../data/door.obj");
     ComputeNormals(&doormodel);
     BuildTrianglesAndAddToVirtualScene(&doormodel);
+
+    ObjModel lampmodel("../../data/lamp.obj");
+    ComputeNormals(&lampmodel);
+    BuildTrianglesAndAddToVirtualScene(&lampmodel);
 
     if ( argc > 1 )
     {
@@ -420,21 +431,35 @@ void LoadShadersFromFiles(){
     if ( g_GpuProgramID != 0 )
         glDeleteProgram(g_GpuProgramID);
 
-    g_GpuProgramID = CreateGpuProgram(vertex_shader_id, fragment_shader_id);
-
-    
+    g_GpuProgramID       = CreateGpuProgram(vertex_shader_id, fragment_shader_id);
     g_model_uniform      = glGetUniformLocation(g_GpuProgramID, "model");
     g_view_uniform       = glGetUniformLocation(g_GpuProgramID, "view");
     g_projection_uniform = glGetUniformLocation(g_GpuProgramID, "projection");
     g_object_id_uniform  = glGetUniformLocation(g_GpuProgramID, "object_id");
     g_bbox_min_uniform   = glGetUniformLocation(g_GpuProgramID, "bbox_min");
     g_bbox_max_uniform   = glGetUniformLocation(g_GpuProgramID, "bbox_max");
+    
+    g_light_direction_uniform = glGetUniformLocation(g_GpuProgramID, "light_direction");
+    g_light_cutoff_angle_uniform = glGetUniformLocation(g_GpuProgramID, "light_cutoff_angle");
+    g_light_outer_cutoff_uniform = glGetUniformLocation(g_GpuProgramID, "light_outer_cutoff");
+    g_light_range_uniform = glGetUniformLocation(g_GpuProgramID, "light_range");
 
     glUseProgram(g_GpuProgramID);
+    
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage0"), 0);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage1"), 1);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage2"), 2);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage3"), 3);
+    glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage4"), 4);
+    glUniform3f(glGetUniformLocation(g_GpuProgramID, "light_position"), LIGHT_POSITION.x, LIGHT_POSITION.y, LIGHT_POSITION.z);
+    glUniform3f(glGetUniformLocation(g_GpuProgramID, "light_color"), LIGHT_COLOR.x, LIGHT_COLOR.y, LIGHT_COLOR.z);
+    glUniform1f(glGetUniformLocation(g_GpuProgramID, "light_intensity"), LIGHT_INTENSITY);
+    
+    glUniform3f(g_light_direction_uniform, 0.0f, -1.0f, 0.0f);
+    glUniform1f(g_light_cutoff_angle_uniform, glm::radians(15.0f));
+    glUniform1f(g_light_outer_cutoff_uniform, glm::radians(45.0f));
+    glUniform1f(g_light_range_uniform, 10.0f);
+    
     glUseProgram(0);
 }
 
@@ -1132,7 +1157,8 @@ void SalaPrincipal(){
     #define PLANE 1
     #define WALL  2
     #define TABLE 3
-    #define DOOR  4
+    #define LAMP  4
+    #define DOOR  5
 
     glm::mat4 model = Matrix_Identity();
     vector<string> objeto;
@@ -1150,6 +1176,11 @@ void SalaPrincipal(){
     posicao = {0.0f, -1.1f, 0.0f};
     rotacao = {0.0f, 0.0f, 0.0f};
     DrawOBJ(TABLE,objeto,posicao,0.3f,rotacao);
+
+    // Lampada de mesa
+    objeto = {"Cone040","Helix039","LAMP","Object008","Rectangle043","Cylinder044","Rectangle047","Rectangle048","Cylinder059","Loft020"};
+    posicao = {SCALE_WALL/2+0.1f, SCALE_WALL-0.75f, 0.0f};
+    DrawOBJ(LAMP,objeto,posicao,0.5f,rotacao);
 
     // Teto
     model = Matrix_Translate(0.0f,SCALE_WALL,0.0f)
