@@ -16,7 +16,10 @@
 
 // CHAO:
 #define GROUND_LEVEL 0.0f
+#define LEVER_POSITION glm::vec3{0.1f, -0.25f, 0.0f}
 
+// TEXTOS:
+#define FONT_HEIGHT      3.0f
 
 #define PI          3.1415926535f
 #define GRAVITY     -25.0f

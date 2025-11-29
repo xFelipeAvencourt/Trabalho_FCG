@@ -1,0 +1,29 @@
+Wavefront OBJ material file
+# Contains 2 materials
+
+newmtl Cobblestone
+Ns 0
+Ka 0.2 0.2 0.2
+Kd 1 1 1
+Ks 0 0 0
+#map_Ka Textures/mine.png
+# for G3D, to make textures look blocky:
+interpolateMode NEAREST_MAGNIFICATION_TRILINEAR_MIPMAP_MINIFICATION
+map_Kd Textures/mine.png
+illum 2
+# d 1
+# Tr 0
+
+newmtl Lever
+Ns 0
+Ka 0.2 0.2 0.2
+Kd 1 1 1
+Ks 0 0 0
+#map_Ka Textures/mine.png
+# for G3D, to make textures look blocky:
+interpolateMode NEAREST_MAGNIFICATION_TRILINEAR_MIPMAP_MINIFICATION
+map_Kd Textures/mine.png
+illum 2
+# d 1
+# Tr 0
+

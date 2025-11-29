@@ -119,11 +119,6 @@ void TextRendering_PrintMatrixVectorProduct(GLFWwindow* window, glm::mat4 M, glm
 void TextRendering_PrintMatrixVectorProductMoreDigits(GLFWwindow* window, glm::mat4 M, glm::vec4 v, float x, float y, float scale = 1.0f);
 void TextRendering_PrintMatrixVectorProductDivW(GLFWwindow* window, glm::mat4 M, glm::vec4 v, float x, float y, float scale = 1.0f);
 
-// Funções abaixo renderizam como texto na janela OpenGL algumas matrizes e
-// outras informações do programa. Definidas após main().
-void TextRendering_ShowModelViewProjection(GLFWwindow* window, glm::mat4 projection, glm::mat4 view, glm::mat4 model, glm::vec4 p_model);
-void TextRendering_ShowEulerAngles(GLFWwindow* window);
-void TextRendering_ShowProjection(GLFWwindow* window);
 void TextRendering_ShowFramesPerSecond(GLFWwindow* window);
 
 // Funções callback para comunicação com o sistema operacional e interação do
@@ -140,6 +135,7 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 ///////////////////////////////////////////////////////////////////////
 
 void SalaPrincipal();
+void Alavanca(GLFWwindow* window);
 void DrawOBJ(int objectId,const std::vector<std::string>& parts,const glm::vec3& position,float size,const glm::vec3& rotation);
 
 // Definimos uma estrutura que armazenará dados necessários para renderizar
@@ -206,6 +202,11 @@ bool  g_SpacePressed = false;
 bool  g_IsJumping = false;
 float g_JumpVelocity = 0.0f;
 bool  g_ghost = false;
+bool  g_showLeverText = false;
+bool  g_leverActivated = false;
+float g_LeverAngle = 0.0f;
+float g_LeverTargetAngle = 0.0f;
+float g_LeverSpeed = glm::radians(90.0f);
 
 // Variáveis que definem um programa de GPU (shaders). Veja função LoadShadersFromFiles().
 GLuint g_GpuProgramID = 0;
@@ -288,6 +289,7 @@ int main(int argc, char* argv[]){
     LoadTextureImage("../../data/Textures/lamp_grey.jpg");
     LoadTextureImage("../../data/Textures/door_txt.jpg");
     LoadTextureImage("../../data/Textures/teto.jpg");
+    LoadTextureImage("../../data/Textures/mine.png");
 
     ObjModel planemodel("../../data/plane.obj");
     ComputeNormals(&planemodel);
@@ -312,6 +314,10 @@ int main(int argc, char* argv[]){
     ObjModel lampmodel("../../data/lamp.obj");
     ComputeNormals(&lampmodel);
     BuildTrianglesAndAddToVirtualScene(&lampmodel);
+
+    ObjModel levermodel("../../data/lever.obj");
+    ComputeNormals(&levermodel);
+    BuildTrianglesAndAddToVirtualScene(&levermodel);
 
     /*
     ObjModel playermodel("../../data/personagem.obj");
@@ -388,10 +394,8 @@ int main(int argc, char* argv[]){
         */
 
         SalaPrincipal();
-
-        TextRendering_ShowEulerAngles(window);
-        TextRendering_ShowProjection(window);
         TextRendering_ShowFramesPerSecond(window);
+        Alavanca(window);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -483,6 +487,7 @@ void LoadShadersFromFiles(){
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage3"), 3);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage4"), 4);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage5"), 5);
+    glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage6"), 6);
     glUniform3f(glGetUniformLocation(g_GpuProgramID, "light_position"), LIGHT_POSITION.x, LIGHT_POSITION.y, LIGHT_POSITION.z);
     glUniform3f(glGetUniformLocation(g_GpuProgramID, "light_color"), LIGHT_COLOR.x, LIGHT_COLOR.y, LIGHT_COLOR.z);
     glUniform1f(glGetUniformLocation(g_GpuProgramID, "light_intensity"), LIGHT_INTENSITY);
@@ -897,6 +902,10 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
         g_ctrlPressed = !g_ctrlPressed;
         Player.setCtrlMode(g_ctrlPressed);
     }
+    float distanceToLever = glm::length(Player.Position - LEVER_POSITION);
+    if (key == GLFW_KEY_L && action == GLFW_PRESS && distanceToLever < 1.5f)
+        g_leverActivated = !g_leverActivated;
+
     if (key == GLFW_KEY_H && action == GLFW_PRESS)
         g_ShowInfoText = !g_ShowInfoText;
 
@@ -921,79 +930,6 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
 
 void ErrorCallback(int error, const char* description){
     fprintf(stderr, "ERROR: GLFW: %s\n", description);
-}
-
-void TextRendering_ShowModelViewProjection(GLFWwindow* window,glm::mat4 projection,glm::mat4 view,glm::mat4 model,glm::vec4 p_model){
-    if ( !g_ShowInfoText )
-        return;
-
-    glm::vec4 p_world = model*p_model;
-    glm::vec4 p_camera = view*p_world;
-    glm::vec4 p_clip = projection*p_camera;
-    glm::vec4 p_ndc = p_clip / p_clip.w;
-
-    float pad = TextRendering_LineHeight(window);
-
-    TextRendering_PrintString(window, " Model matrix             Model     In World Coords.", -1.0f, 1.0f-pad, 1.0f);
-    TextRendering_PrintMatrixVectorProduct(window, model, p_model, -1.0f, 1.0f-2*pad, 1.0f);
-
-    TextRendering_PrintString(window, "                                        |  ", -1.0f, 1.0f-6*pad, 1.0f);
-    TextRendering_PrintString(window, "                            .-----------'  ", -1.0f, 1.0f-7*pad, 1.0f);
-    TextRendering_PrintString(window, "                            V              ", -1.0f, 1.0f-8*pad, 1.0f);
-
-    TextRendering_PrintString(window, " View matrix              World     In Camera Coords.", -1.0f, 1.0f-9*pad, 1.0f);
-    TextRendering_PrintMatrixVectorProduct(window, view, p_world, -1.0f, 1.0f-10*pad, 1.0f);
-
-    TextRendering_PrintString(window, "                                        |  ", -1.0f, 1.0f-14*pad, 1.0f);
-    TextRendering_PrintString(window, "                            .-----------'  ", -1.0f, 1.0f-15*pad, 1.0f);
-    TextRendering_PrintString(window, "                            V              ", -1.0f, 1.0f-16*pad, 1.0f);
-
-    TextRendering_PrintString(window, " Projection matrix        Camera                    In NDC", -1.0f, 1.0f-17*pad, 1.0f);
-    TextRendering_PrintMatrixVectorProductDivW(window, projection, p_camera, -1.0f, 1.0f-18*pad, 1.0f);
-
-    int width, height;
-    glfwGetFramebufferSize(window, &width, &height);
-
-    glm::vec2 a = glm::vec2(-1, -1);
-    glm::vec2 b = glm::vec2(+1, +1);
-    glm::vec2 p = glm::vec2( 0,  0);
-    glm::vec2 q = glm::vec2(width, height);
-
-    glm::mat4 viewport_mapping = Matrix(
-        (q.x - p.x)/(b.x-a.x), 0.0f, 0.0f, (b.x*p.x - a.x*q.x)/(b.x-a.x),
-        0.0f, (q.y - p.y)/(b.y-a.y), 0.0f, (b.y*p.y - a.y*q.y)/(b.y-a.y),
-        0.0f , 0.0f , 1.0f , 0.0f ,
-        0.0f , 0.0f , 0.0f , 1.0f
-    );
-
-    TextRendering_PrintString(window, "                                                       |  ", -1.0f, 1.0f-22*pad, 1.0f);
-    TextRendering_PrintString(window, "                            .--------------------------'  ", -1.0f, 1.0f-23*pad, 1.0f);
-    TextRendering_PrintString(window, "                            V                           ", -1.0f, 1.0f-24*pad, 1.0f);
-
-    TextRendering_PrintString(window, " Viewport matrix           NDC      In Pixel Coords.", -1.0f, 1.0f-25*pad, 1.0f);
-    TextRendering_PrintMatrixVectorProductMoreDigits(window, viewport_mapping, p_ndc, -1.0f, 1.0f-26*pad, 1.0f);
-}
-
-void TextRendering_ShowEulerAngles(GLFWwindow* window){
-    if ( !g_ShowInfoText )
-        return;
-
-    float pad = TextRendering_LineHeight(window);
-
-    char buffer[80];
-    snprintf(buffer, 80, "Euler Angles rotation matrix = Z(%.2f)*Y(%.2f)*X(%.2f)\n", g_AngleZ, g_AngleY, g_AngleX);
-
-    TextRendering_PrintString(window, buffer, -1.0f+pad/10, -1.0f+2*pad/10, 1.0f);
-}
-
-void TextRendering_ShowProjection(GLFWwindow* window){
-    if ( !g_ShowInfoText )
-        return;
-
-    float lineheight = TextRendering_LineHeight(window);
-    float charwidth = TextRendering_CharWidth(window);
-
-    TextRendering_PrintString(window, "Orthographic", 1.0f-13*charwidth, -1.0f+2*lineheight/10, 1.0f);
 }
 
 void TextRendering_ShowFramesPerSecond(GLFWwindow* window)
@@ -1194,6 +1130,7 @@ void SalaPrincipal(){
     #define TABLE       4
     #define LAMP        5
     #define DOOR        6
+    #define LEVER       8
     glm::mat4 model = Matrix_Identity();
     vector<string> objeto;
     glm::vec3 posicao, rotacao;
@@ -1211,9 +1148,20 @@ void SalaPrincipal(){
     rotacao = {0.0f, 0.0f, 0.0f};
     DrawOBJ(TABLE,objeto,posicao,0.3f,rotacao);
 
+    // Alavanca
+    objeto = {"Cobblestone"};
+    posicao = {0.0f, -0.25f, 0.0f};
+    rotacao = {0.0f, PI/2, 0.0f};
+    DrawOBJ(LEVER,objeto,posicao,0.05f,rotacao);
+    objeto = {"Lever"};
+    posicao = {0.00f, -0.25f, 0.0f};
+    rotacao = {g_LeverAngle, PI/2, 0.0f};
+    DrawOBJ(LEVER,objeto,posicao,0.05f,rotacao);
+
     // Lampada de mesa
     objeto = {"Cone040","Helix039","LAMP","Object008","Rectangle043","Cylinder044","Rectangle047","Rectangle048","Cylinder059","Loft020"};
     posicao = {SCALE_WALL/2+0.1f, SCALE_WALL-0.75f, 0.0f};
+    rotacao = {0.0f, 0.0f, 0.0f};
     DrawOBJ(LAMP,objeto,posicao,0.5f,rotacao);
 
     // Teto
@@ -1332,6 +1280,36 @@ void DrawOBJ(int objectId,const std::vector<std::string>& parts,const glm::vec3&
         if (it != g_VirtualScene.end() && it->second.vertex_array_object_id != 0)
             DrawVirtualObject(partName.c_str());
     }
+}
+
+void Alavanca(GLFWwindow* window){
+
+    float distanceToLever = glm::length(Player.Position - LEVER_POSITION);
+        bool isCloseToLever = (distanceToLever < 1.5f && !g_leverActivated);
+        bool isLookingAtLever = false;
+        if (isCloseToLever) {
+            glm::vec3 dirToLever = glm::normalize(LEVER_POSITION - Player.Position);
+            float dot = glm::dot(Player.Front, dirToLever);
+            const float viewAngleThreshold = cos(glm::radians(30.0f));
+            isLookingAtLever = (dot > viewAngleThreshold);
+        }
+        g_showLeverText = isCloseToLever && isLookingAtLever;
+        if (g_showLeverText)
+            TextRendering_PrintString(window, "Pressione L para acionar a alavanca", 
+                -0.3f - 0.5f * strlen("Pressione L para acionar a alavanca") * TextRendering_CharWidth(window), 
+                -0.5f - 0.5f * TextRendering_LineHeight(window), FONT_HEIGHT);
+
+        g_LeverTargetAngle = g_leverActivated ? -glm::radians(70.0f) : 0.0f;
+
+        float diff = g_LeverTargetAngle - g_LeverAngle;
+        float maxStep = g_LeverSpeed * deltaTime;
+        if (fabs(diff) <= maxStep)
+            g_LeverAngle = g_LeverTargetAngle;
+        else
+            g_LeverAngle += (diff > 0.0f ? 1.0f : -1.0f) * maxStep;
+
+        // Se quiser, aqui podemos disparar efeitos adicionais quando a alavanca atinge o estado ativado
+        // Exemplo: acender/alterar luzes, abrir portas, etc. (não implementado por segurança)
 }
 
 // set makeprg=cd\ ..\ &&\ make\ run\ >/dev/null
