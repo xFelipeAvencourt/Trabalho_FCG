@@ -30,8 +30,10 @@
 #include "matrices.h"
 #include "Personagem.h"
 #include "Constantes.h"
+// Colisões com as paredes/elementos da sala
+#include "collisions.h"
 
-#define DADOS "INF01047 - 00342904 - Felipe Avencourt && Fernando"
+#define DADOS "INF01047 - 00342904 - Felipe Avencourt && Fernando Fink"
 
 using namespace std;
 
@@ -199,6 +201,7 @@ bool  g_WPressed = false;
 bool  g_SPressed = false;
 bool  g_DPressed = false;
 bool  g_APressed = false;
+bool  g_ctrlPressed = false;
 bool  g_SpacePressed = false;
 bool  g_IsJumping = false;
 float g_JumpVelocity = 0.0f;
@@ -284,10 +287,15 @@ int main(int argc, char* argv[]){
     LoadTextureImage("../../data/Textures/round_table.png");
     LoadTextureImage("../../data/Textures/lamp_grey.jpg");
     LoadTextureImage("../../data/Textures/door_txt.jpg");
+    LoadTextureImage("../../data/Textures/teto.jpg");
 
     ObjModel planemodel("../../data/plane.obj");
     ComputeNormals(&planemodel);
     BuildTrianglesAndAddToVirtualScene(&planemodel);
+
+    ObjModel ceilingmodel("../../data/ceiling.obj");
+    ComputeNormals(&ceilingmodel);
+    BuildTrianglesAndAddToVirtualScene(&ceilingmodel);
 
     ObjModel wallmodel("../../data/wall.obj");
     ComputeNormals(&wallmodel);
@@ -305,6 +313,12 @@ int main(int argc, char* argv[]){
     ComputeNormals(&lampmodel);
     BuildTrianglesAndAddToVirtualScene(&lampmodel);
 
+    /*
+    ObjModel playermodel("../../data/personagem.obj");
+    ComputeNormals(&playermodel);
+    BuildTrianglesAndAddToVirtualScene(&playermodel);
+    */
+   
     if ( argc > 1 )
     {
         ObjModel model(argv[1]);
@@ -324,6 +338,7 @@ int main(int argc, char* argv[]){
 
     while (!glfwWindowShouldClose(window))
     {
+        #define PERSON 7
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -333,6 +348,7 @@ int main(int argc, char* argv[]){
         deltaTime = lastTime - lastFrameTime;
         lastFrameTime = lastTime;
 
+        
         if (g_WPressed)
             Player.ProcessKeyboard(FORWARD, deltaTime, g_ghost);
         if (g_SPressed)
@@ -343,19 +359,33 @@ int main(int argc, char* argv[]){
             Player.ProcessKeyboard(RIGHT, deltaTime, g_ghost);
         if (g_SpacePressed)
             Player.ProcessKeyboard(JUMP, deltaTime, g_ghost);
-
+            
         Player.Update(deltaTime);
+
+        PlayerCollision(Player, g_ghost);
 
     
         mat4 view = Player.GetViewMatrix();
-        float nearplane = -0.1f;
-        float farplane  = -10.0f;
         float field_of_view = PI / 3.0f;
-        mat4 projection = Matrix_Perspective(field_of_view, g_ScreenRatio, nearplane, farplane);
+        mat4 projection = Matrix_Perspective(field_of_view, g_ScreenRatio, NEARPLANE, FARPLANE);
 
         // Enviamos as matrizes "view" e "projection" para a GPU
         glUniformMatrix4fv(g_view_uniform       , 1 , GL_FALSE , glm::value_ptr(view));
         glUniformMatrix4fv(g_projection_uniform , 1 , GL_FALSE , glm::value_ptr(projection));
+
+        /*
+        // PERSONAGEM
+        float yawRad = Player.Yaw * (PI / 180.0f);
+        float pitchRad = Player.Pitch * (PI / 180.0f);
+        glm::mat4 model = Matrix_Translate(Player.Position.x, Player.Position.y - 1.0f, Player.Position.z)
+            * Matrix_Rotate_Y(PI / 2.0f)
+            * Matrix_Rotate_Y(-yawRad)
+            * Matrix_Scale(PLAYER_HEIGHT, PLAYER_HEIGHT, PLAYER_HEIGHT);
+
+        glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+        glUniform1i(g_object_id_uniform, PERSON);
+        DrawVirtualObject("Group1");
+        */
 
         SalaPrincipal();
 
@@ -388,8 +418,9 @@ void LoadTextureImage(const char* filename) {
     glGenSamplers(1, &sampler_id);
 
     std::string fname(filename);
-    GLint wrap_mode = (fname.find("chao") != std::string::npos || fname.find("ch?o") != std::string::npos ||
-                        fname.find("brick") != std::string::npos || fname.find("Brick") != std::string::npos)
+    GLint wrap_mode = (fname.find("chao") != std::string::npos || fname.find("chao") != std::string::npos ||
+                        fname.find("brick") != std::string::npos || fname.find("Brick") != std::string::npos) ||
+                        fname.find("teto") != std::string::npos
                         ? GL_MIRRORED_REPEAT
                         : GL_CLAMP_TO_EDGE;
 
@@ -451,6 +482,7 @@ void LoadShadersFromFiles(){
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage2"), 2);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage3"), 3);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage4"), 4);
+    glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage5"), 5);
     glUniform3f(glGetUniformLocation(g_GpuProgramID, "light_position"), LIGHT_POSITION.x, LIGHT_POSITION.y, LIGHT_POSITION.z);
     glUniform3f(glGetUniformLocation(g_GpuProgramID, "light_color"), LIGHT_COLOR.x, LIGHT_COLOR.y, LIGHT_COLOR.z);
     glUniform1f(glGetUniformLocation(g_GpuProgramID, "light_intensity"), LIGHT_INTENSITY);
@@ -861,7 +893,10 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
         g_ghost = !g_ghost;
         Player.setGhostMode(g_ghost);
     }
-
+    if ((key == GLFW_KEY_LEFT_CONTROL || key == GLFW_KEY_RIGHT_CONTROL) && action == GLFW_PRESS){
+        g_ctrlPressed = !g_ctrlPressed;
+        Player.setCtrlMode(g_ctrlPressed);
+    }
     if (key == GLFW_KEY_H && action == GLFW_PRESS)
         g_ShowInfoText = !g_ShowInfoText;
 
@@ -882,7 +917,6 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
         g_DPressed = pressed;
     if (key == GLFW_KEY_SPACE)
         g_SpacePressed = pressed;
-
 }
 
 void ErrorCallback(int error, const char* description){
@@ -1154,12 +1188,12 @@ void PrintObjModelInfo(ObjModel* model){
 
 void SalaPrincipal(){
 
-    #define PLANE 1
-    #define WALL  2
-    #define TABLE 3
-    #define LAMP  4
-    #define DOOR  5
-
+    #define PLANE       1
+    #define WALL        2
+    #define CEILING     3
+    #define TABLE       4
+    #define LAMP        5
+    #define DOOR        6
     glm::mat4 model = Matrix_Identity();
     vector<string> objeto;
     glm::vec3 posicao, rotacao;
@@ -1187,8 +1221,8 @@ void SalaPrincipal(){
             * Matrix_Rotate_X(PI)
             * Matrix_Scale(SCALE_FLOUR,SCALE_FLOUR,SCALE_FLOUR);
     glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-    glUniform1i(g_object_id_uniform, WALL);
-    DrawVirtualObject("the_wall");
+    glUniform1i(g_object_id_uniform, CEILING);
+    DrawVirtualObject("the_ceiling");
 
     // Parede frontal
     model = Matrix_Translate(0.0f,SCALE_WALL/4,-SCALE_FLOUR)

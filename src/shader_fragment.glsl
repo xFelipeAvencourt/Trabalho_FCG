@@ -29,11 +29,12 @@ uniform float light_outer_cutoff;
 uniform float light_range;
 
 // Identificador que define qual objeto está sendo desenhado no momento
-#define PLANE  1
-#define WALL   2
-#define TABLE  3
-#define LAMP   4
-#define DOOR   5
+#define PLANE       1
+#define WALL        2
+#define CEILING     3
+#define TABLE       4
+#define LAMP        5
+#define DOOR        6
 uniform int object_id;
 
 // Variáveis para acesso das imagens de textura
@@ -42,6 +43,7 @@ uniform sampler2D TextureImage1;
 uniform sampler2D TextureImage2;
 uniform sampler2D TextureImage3;
 uniform sampler2D TextureImage4;
+uniform sampler2D TextureImage5;
 
 // O valor de saída ("out") de um Fragment Shader é a cor final do fragmento.
 out vec4 color;
@@ -76,8 +78,8 @@ void main()
 //  TEXTURAS
 /////////////////////////////////////////////
     
-    if ( object_id == PLANE || object_id == WALL){
-        float tiling = 4.0;
+    if ( object_id == PLANE || object_id == WALL || object_id == CEILING){
+        float tiling = 5.0;
         U = texcoords.x * tiling;
         V = texcoords.y * tiling;
     }
@@ -92,6 +94,10 @@ void main()
     }
     else if ( object_id == WALL ) {
         Kd0 = texture(TextureImage1, vec2(U,V)).rgb;
+        Kd1 = vec3(0.0);
+    }
+    else if ( object_id == CEILING ) {
+        Kd0 = texture(TextureImage5, vec2(U,V)).rgb;
         Kd1 = vec3(0.0);
     }
     else if ( object_id == TABLE){
@@ -113,7 +119,7 @@ void main()
     float cone_intensity = 1.0;
     float distance_attenuation = 1.0;
 
-    if (object_id == TABLE || object_id == PLANE) {
+    if (object_id == TABLE || object_id == PLANE || object_id == CEILING) {
 
         vec3 light_to_point = normalize(p3 - light_position);
         vec3 spot_dir = normalize(light_direction);
@@ -140,9 +146,9 @@ void main()
     float lambert = max(0.0, dot(n3, l3));
     vec3 base = Kd0 * lambert + Kd1 * (1.0 - lambert);
     vec3 diffuse = base * light_color * light_intensity;
-    vec3 ambient = Kd0 * 0.01;
+    vec3 ambient = Kd0 * 0.001;
 
-    if (object_id == TABLE || object_id == PLANE)
+    if (object_id == TABLE || object_id == PLANE || object_id == CEILING)
         diffuse *= cone_intensity;
 
     if (object_id == WALL || object_id == DOOR) {
@@ -151,7 +157,7 @@ void main()
         diffuse *= wall_atten;
     }
 
-    if ((object_id == TABLE || object_id == PLANE) && cone_intensity < 0.1)
+    if ((object_id == TABLE || object_id == PLANE || object_id == CEILING) && cone_intensity < 0.1)
         color.rgb = ambient;
     else
         color.rgb = diffuse + ambient;

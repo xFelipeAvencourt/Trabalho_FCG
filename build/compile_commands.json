@@ -28,5 +28,11 @@
   "command": "/usr/bin/gcc  -I\"/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include\" -g -Wall -Wno-unused-function -o CMakeFiles/main.dir/src/glad.c.o -c \"/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/src/glad.c\"",
   "file": "/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/src/glad.c",
   "output": "CMakeFiles/main.dir/src/glad.c.o"
+},
+{
+  "directory": "/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/build",
+  "command": "/usr/bin/g++  -I\"/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/include\" -g -std=c++11 -Wall -Wno-unused-function -o CMakeFiles/main.dir/src/collisions.cpp.o -c \"/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/src/collisions.cpp\"",
+  "file": "/home/lipt/UFRGS/semestre 7/FCG/Trabalho_FCG/src/collisions.cpp",
+  "output": "CMakeFiles/main.dir/src/collisions.cpp.o"
 }
 ]

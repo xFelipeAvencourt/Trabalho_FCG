@@ -70,6 +70,26 @@ public:
 
     }
 
+    void setCtrlMode(bool press){
+        if(press){
+            float descentSpeed = 1.0f;
+            while (Position.y > GROUND_LEVEL - 0.5f) {
+                Position.y -= descentSpeed * (1.0f / 60.0f);
+                if (Position.y < GROUND_LEVEL - 0.5f)
+                    Position.y = GROUND_LEVEL - 0.5f;
+            }
+        }
+        else{
+            float ascentSpeed = 1.0f;
+            while (Position.y < GROUND_LEVEL) {
+                Position.y += ascentSpeed * (1.0f / 60.0f);
+                if (Position.y > GROUND_LEVEL)
+                    Position.y = GROUND_LEVEL;    
+            }
+        }
+        updateCameraVectors();
+    }
+
     void ProcessKeyboard(Camera_Movement direction, float deltaTime, bool ghostMode = false) {
 
         float velocity = MovementSpeed * deltaTime;
