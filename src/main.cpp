@@ -30,8 +30,8 @@
 #include "matrices.h"
 #include "Personagem.h"
 #include "Constantes.h"
-// Colisões com as paredes/elementos da sala
-#include "collisions.h"
+#include "Collisions.h"
+#include "SceneObject.h"
 
 #define DADOS "INF01047 - 00342904 - Felipe Avencourt && Fernando Fink"
 
@@ -138,24 +138,12 @@ void SalaPrincipal();
 void Alavanca(GLFWwindow* window);
 void DrawOBJ(int objectId,const std::vector<std::string>& parts,const glm::vec3& position,float size,const glm::vec3& rotation);
 
-// Definimos uma estrutura que armazenará dados necessários para renderizar
-// cada objeto da cena virtual.
-struct SceneObject
-{
-    string  name;
-    size_t       first_index;
-    size_t       num_indices;
-    GLenum       rendering_mode;
-    GLuint       vertex_array_object_id;
-    glm::vec3    bbox_min;
-    glm::vec3    bbox_max;
-};
-
 ///////////////////////////////////////////////////////////////////////
 /////////////////////////Matrizes//////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
 
 map<string, SceneObject> g_VirtualScene;
+std::map<int, AABB> g_listaAABB;
 // Pilha que guardará as matrizes de modelagem.
 stack<glm::mat4>  g_MatrixStack;
 
@@ -368,7 +356,8 @@ int main(int argc, char* argv[]){
             
         Player.Update(deltaTime);
 
-        PlayerCollision(Player, g_ghost);
+        PlayerWallCollision(Player, g_ghost);
+        PlayerObjectCollision(Player, g_listaAABB);
 
     
         mat4 view = Player.GetViewMatrix();
@@ -1261,6 +1250,20 @@ void DrawOBJ(int objectId,const std::vector<std::string>& parts,const glm::vec3&
     const float scaledMinY = (bbox_min.y - center.y) * scale;
     const float worldY = position.y - scaledMinY;
 
+    if (objectId == TABLE) {
+        float tableTopY = worldY + (bbox_max.y - center.y) * scale;
+        g_listaAABB[objectId] = AABB{
+            glm::vec3(bbox_min.x * scale + position.x, tableTopY,bbox_min.z * scale + position.z),
+            glm::vec3(bbox_max.x * scale + position.x, SCALE_WALL,bbox_max.z * scale + position.z)
+        };
+    }
+    else {
+        g_listaAABB[objectId] = AABB{
+            glm::vec3(bbox_min.x * scale + position.x, worldY,bbox_min.z * scale + position.z),
+            glm::vec3(bbox_max.x * scale + position.x, (bbox_max.y - center.y) * scale + worldY,bbox_max.z * scale + position.z)
+        };
+    }
+
     const glm::mat4 rotationMatrix = 
         Matrix_Rotate_Z(rotation.z) *
         Matrix_Rotate_Y(rotation.y) *
@@ -1307,9 +1310,6 @@ void Alavanca(GLFWwindow* window){
             g_LeverAngle = g_LeverTargetAngle;
         else
             g_LeverAngle += (diff > 0.0f ? 1.0f : -1.0f) * maxStep;
-
-        // Se quiser, aqui podemos disparar efeitos adicionais quando a alavanca atinge o estado ativado
-        // Exemplo: acender/alterar luzes, abrir portas, etc. (não implementado por segurança)
 }
 
 // set makeprg=cd\ ..\ &&\ make\ run\ >/dev/null

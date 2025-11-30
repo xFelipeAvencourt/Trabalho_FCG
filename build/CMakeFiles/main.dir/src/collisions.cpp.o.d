@@ -1,12 +1,8 @@
 CMakeFiles/main.dir/src/collisions.cpp.o: \
  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/src/collisions.cpp \
  /usr/include/stdc-predef.h \
- /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/src/../include/collisions.h \
- /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/src/../include/Personagem.h \
- /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/src/../include/Constantes.h \
- /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/glm.hpp \
- /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/_fixes.hpp \
- /usr/include/c++/13/cmath /usr/include/c++/13/bits/requires_hosted.h \
+ /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/src/../include/Collisions.h \
+ /usr/include/c++/13/map /usr/include/c++/13/bits/requires_hosted.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/os_defines.h \
  /usr/include/features.h /usr/include/features-time64.h \
@@ -17,8 +13,42 @@ CMakeFiles/main.dir/src/collisions.cpp.o: \
  /usr/include/x86_64-linux-gnu/gnu/stubs.h \
  /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/cpu_defines.h \
+ /usr/include/c++/13/bits/stl_tree.h \
+ /usr/include/c++/13/bits/stl_algobase.h \
+ /usr/include/c++/13/bits/functexcept.h \
+ /usr/include/c++/13/bits/exception_defines.h \
  /usr/include/c++/13/bits/cpp_type_traits.h \
- /usr/include/c++/13/ext/type_traits.h /usr/include/math.h \
+ /usr/include/c++/13/ext/type_traits.h \
+ /usr/include/c++/13/ext/numeric_traits.h \
+ /usr/include/c++/13/bits/stl_pair.h /usr/include/c++/13/type_traits \
+ /usr/include/c++/13/bits/move.h /usr/include/c++/13/bits/utility.h \
+ /usr/include/c++/13/bits/stl_iterator_base_types.h \
+ /usr/include/c++/13/bits/stl_iterator_base_funcs.h \
+ /usr/include/c++/13/bits/concept_check.h \
+ /usr/include/c++/13/debug/assertions.h \
+ /usr/include/c++/13/bits/stl_iterator.h \
+ /usr/include/c++/13/bits/ptr_traits.h /usr/include/c++/13/debug/debug.h \
+ /usr/include/c++/13/bits/predefined_ops.h \
+ /usr/include/c++/13/bits/allocator.h \
+ /usr/include/x86_64-linux-gnu/c++/13/bits/c++allocator.h \
+ /usr/include/c++/13/bits/new_allocator.h /usr/include/c++/13/new \
+ /usr/include/c++/13/bits/exception.h \
+ /usr/include/c++/13/bits/memoryfwd.h \
+ /usr/include/c++/13/bits/stl_function.h \
+ /usr/include/c++/13/backward/binders.h \
+ /usr/include/c++/13/ext/alloc_traits.h \
+ /usr/include/c++/13/bits/alloc_traits.h \
+ /usr/include/c++/13/bits/stl_construct.h \
+ /usr/include/c++/13/ext/aligned_buffer.h \
+ /usr/include/c++/13/bits/stl_map.h /usr/include/c++/13/initializer_list \
+ /usr/include/c++/13/tuple /usr/include/c++/13/bits/uses_allocator.h \
+ /usr/include/c++/13/bits/invoke.h \
+ /usr/include/c++/13/bits/stl_multimap.h \
+ /usr/include/c++/13/bits/range_access.h \
+ /usr/include/c++/13/bits/erase_if.h \
+ /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/glm.hpp \
+ /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/_fixes.hpp \
+ /usr/include/c++/13/cmath /usr/include/math.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
  /usr/include/x86_64-linux-gnu/bits/types.h \
  /usr/include/x86_64-linux-gnu/bits/typesizes.h \
@@ -72,7 +102,7 @@ CMakeFiles/main.dir/src/collisions.cpp.o: \
  /usr/include/x86_64-linux-gnu/bits/wchar.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-least.h \
- /usr/include/c++/13/type_traits /usr/include/c++/13/climits \
+ /usr/include/c++/13/climits \
  /usr/lib/gcc/x86_64-linux-gnu/13/include/limits.h \
  /usr/lib/gcc/x86_64-linux-gnu/13/include/syslimits.h \
  /usr/include/limits.h /usr/include/x86_64-linux-gnu/bits/posix1_lim.h \
@@ -218,6 +248,8 @@ CMakeFiles/main.dir/src/collisions.cpp.o: \
  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/type_half.inl \
  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/integer.hpp \
  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/func_integer.inl \
+ /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/src/../include/Personagem.h \
+ /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/src/../include/Constantes.h \
  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/gtc/matrix_transform.hpp \
  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/gtc/../ext/matrix_projection.hpp \
  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/gtc/../ext/../gtc/constants.hpp \
@@ -270,24 +302,43 @@ CMakeFiles/main.dir/src/collisions.cpp.o: \
  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/gtc/../gtc/../ext/vector_uint1_precision.hpp \
  /usr/include/c++/13/cstring /usr/include/string.h /usr/include/strings.h \
  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/gtc/type_ptr.inl \
- /usr/include/c++/13/algorithm /usr/include/c++/13/bits/stl_algobase.h \
- /usr/include/c++/13/bits/functexcept.h \
- /usr/include/c++/13/bits/exception_defines.h \
- /usr/include/c++/13/ext/numeric_traits.h \
- /usr/include/c++/13/bits/stl_pair.h /usr/include/c++/13/bits/move.h \
- /usr/include/c++/13/bits/utility.h \
- /usr/include/c++/13/bits/stl_iterator_base_types.h \
- /usr/include/c++/13/bits/stl_iterator_base_funcs.h \
- /usr/include/c++/13/bits/concept_check.h \
- /usr/include/c++/13/debug/assertions.h \
- /usr/include/c++/13/bits/stl_iterator.h \
- /usr/include/c++/13/bits/ptr_traits.h /usr/include/c++/13/debug/debug.h \
- /usr/include/c++/13/bits/predefined_ops.h \
- /usr/include/c++/13/bits/stl_algo.h \
+ /usr/include/c++/13/algorithm /usr/include/c++/13/bits/stl_algo.h \
  /usr/include/c++/13/bits/algorithmfwd.h \
- /usr/include/c++/13/initializer_list /usr/include/c++/13/bits/stl_heap.h \
+ /usr/include/c++/13/bits/stl_heap.h \
  /usr/include/c++/13/bits/uniform_int_dist.h \
- /usr/include/c++/13/bits/stl_tempbuf.h /usr/include/c++/13/new \
- /usr/include/c++/13/bits/exception.h \
- /usr/include/c++/13/bits/stl_construct.h /usr/include/c++/13/cstdlib \
- /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/src/../include/Constantes.h
+ /usr/include/c++/13/bits/stl_tempbuf.h /usr/include/c++/13/cstdlib \
+ /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/src/../include/Constantes.h \
+ /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/src/../include/SceneObject.h \
+ /usr/include/c++/13/string /usr/include/c++/13/bits/stringfwd.h \
+ /usr/include/c++/13/bits/char_traits.h \
+ /usr/include/c++/13/bits/postypes.h /usr/include/c++/13/cwchar \
+ /usr/include/wchar.h /usr/lib/gcc/x86_64-linux-gnu/13/include/stdarg.h \
+ /usr/include/x86_64-linux-gnu/bits/types/wint_t.h \
+ /usr/include/x86_64-linux-gnu/bits/types/mbstate_t.h \
+ /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h \
+ /usr/include/x86_64-linux-gnu/bits/types/__FILE.h \
+ /usr/include/x86_64-linux-gnu/bits/types/FILE.h \
+ /usr/include/c++/13/bits/localefwd.h \
+ /usr/include/x86_64-linux-gnu/c++/13/bits/c++locale.h \
+ /usr/include/c++/13/clocale /usr/include/locale.h \
+ /usr/include/x86_64-linux-gnu/bits/locale.h /usr/include/c++/13/iosfwd \
+ /usr/include/c++/13/cctype /usr/include/ctype.h \
+ /usr/include/c++/13/bits/ostream_insert.h \
+ /usr/include/c++/13/bits/cxxabi_forced.h \
+ /usr/include/c++/13/bits/refwrap.h \
+ /usr/include/c++/13/bits/basic_string.h \
+ /usr/include/c++/13/ext/string_conversions.h /usr/include/c++/13/cstdio \
+ /usr/include/stdio.h /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h \
+ /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h \
+ /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h \
+ /usr/include/x86_64-linux-gnu/bits/types/cookie_io_functions_t.h \
+ /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
+ /usr/include/c++/13/cerrno /usr/include/errno.h \
+ /usr/include/x86_64-linux-gnu/bits/errno.h /usr/include/linux/errno.h \
+ /usr/include/x86_64-linux-gnu/asm/errno.h \
+ /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h \
+ /usr/include/x86_64-linux-gnu/bits/types/error_t.h \
+ /usr/include/c++/13/bits/charconv.h \
+ /usr/include/c++/13/bits/functional_hash.h \
+ /usr/include/c++/13/bits/hash_bytes.h \
+ /usr/include/c++/13/bits/basic_string.tcc

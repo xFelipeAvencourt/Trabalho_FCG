@@ -395,4 +395,5 @@ CMakeFiles/main.dir/src/main.cpp.o: \
  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/integer.hpp \
  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/glm/detail/func_integer.inl \
  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/Constantes.h \
- /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/collisions.h
+ /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/Collisions.h \
+ /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/include/SceneObject.h
