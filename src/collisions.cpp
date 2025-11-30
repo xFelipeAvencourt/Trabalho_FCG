@@ -1,3 +1,4 @@
+#include "../include/Constantes.h"
 #include "../include/Collisions.h"
 #include "../include/Personagem.h"
 #include "../include/Constantes.h"
@@ -5,10 +6,10 @@
 #include <glm/glm.hpp>
 #include <algorithm>
 
+#define margin (PLAYER_HEIGHT / 2.0f + 0.05f)
+
 void PlayerWallCollision(Camera &player, bool ghostMode) {
     if (ghostMode) return;
-
-    const float margin = PLAYER_HEIGHT * 2.0f + 0.05f;
 
     const float minX = -SCALE_FLOUR + margin;
     const float maxX =  SCALE_FLOUR - margin;
@@ -23,10 +24,7 @@ void PlayerWallCollision(Camera &player, bool ghostMode) {
 }
 
 void PlayerObjectCollision(Camera &player, const std::map<int, struct AABB>& aabbList) {
-    
-    const float margin = PLAYER_HEIGHT / 2.0f;
-
-    
+        
     for (const auto& pair : aabbList) {
 
         const AABB& aabb = pair.second;
@@ -78,4 +76,19 @@ void PlayerObjectCollision(Camera &player, const std::map<int, struct AABB>& aab
             }
         }
     }
+}
+
+bool CheckSafe(const glm::vec3& position) {
+
+    auto it = g_listaAABB.find(4);
+    if (it == g_listaAABB.end()) return false;
+
+    const AABB& tableAABB = it->second;
+
+    const bool insideXZ = (position.x > tableAABB.min.x && position.x < tableAABB.max.x &&
+                           position.z > tableAABB.min.z && position.z < tableAABB.max.z);
+
+    const bool betweenY = (position.y == AGACHADO);
+
+    return insideXZ && betweenY;
 }

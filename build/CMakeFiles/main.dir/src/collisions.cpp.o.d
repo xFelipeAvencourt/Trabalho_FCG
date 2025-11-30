@@ -1,6 +1,7 @@
 CMakeFiles/main.dir/src/collisions.cpp.o: \
  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/src/collisions.cpp \
  /usr/include/stdc-predef.h \
+ /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/src/../include/Constantes.h \
  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/src/../include/Collisions.h \
  /usr/include/c++/13/map /usr/include/c++/13/bits/requires_hosted.h \
  /usr/include/x86_64-linux-gnu/c++/13/bits/c++config.h \
@@ -307,7 +308,6 @@ CMakeFiles/main.dir/src/collisions.cpp.o: \
  /usr/include/c++/13/bits/stl_heap.h \
  /usr/include/c++/13/bits/uniform_int_dist.h \
  /usr/include/c++/13/bits/stl_tempbuf.h /usr/include/c++/13/cstdlib \
- /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/src/../include/Constantes.h \
  /home/lipt/UFRGS/semestre\ 7/FCG/Trabalho_FCG/src/../include/SceneObject.h \
  /usr/include/c++/13/string /usr/include/c++/13/bits/stringfwd.h \
  /usr/include/c++/13/bits/char_traits.h \

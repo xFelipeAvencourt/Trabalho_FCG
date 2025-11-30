@@ -73,10 +73,10 @@ public:
     void setCtrlMode(bool press){
         if(press){
             float descentSpeed = 1.0f;
-            while (Position.y > GROUND_LEVEL - 0.5f) {
+            while (Position.y > AGACHADO) {
                 Position.y -= descentSpeed * (1.0f / 60.0f);
-                if (Position.y < GROUND_LEVEL - 0.5f)
-                    Position.y = GROUND_LEVEL - 0.5f;
+                if (Position.y < AGACHADO)
+                    Position.y = AGACHADO;
             }
         }
         else{

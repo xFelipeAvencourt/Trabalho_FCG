@@ -135,7 +135,7 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 ///////////////////////////////////////////////////////////////////////
 
 void SalaPrincipal();
-void Alavanca(GLFWwindow* window);
+void Alavanca(GLFWwindow* window, bool &armadilhas);
 void DrawOBJ(int objectId,const std::vector<std::string>& parts,const glm::vec3& position,float size,const glm::vec3& rotation);
 
 ///////////////////////////////////////////////////////////////////////
@@ -210,6 +210,9 @@ GLint g_light_direction_uniform;
 GLint g_light_cutoff_angle_uniform;
 GLint g_light_outer_cutoff_uniform;
 GLint g_light_range_uniform;
+
+// Tempo
+float g_LeverAtivationTime = 0.0f;
 
 GLuint g_NumLoadedTextures = 0;
 
@@ -312,6 +315,8 @@ int main(int argc, char* argv[]){
     ComputeNormals(&playermodel);
     BuildTrianglesAndAddToVirtualScene(&playermodel);
     */
+
+    bool armadilhas = true;
    
     if ( argc > 1 )
     {
@@ -384,7 +389,7 @@ int main(int argc, char* argv[]){
 
         SalaPrincipal();
         TextRendering_ShowFramesPerSecond(window);
-        Alavanca(window);
+        Alavanca(window, armadilhas);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -1285,7 +1290,7 @@ void DrawOBJ(int objectId,const std::vector<std::string>& parts,const glm::vec3&
     }
 }
 
-void Alavanca(GLFWwindow* window){
+void Alavanca(GLFWwindow* window, bool &armadilhas){
 
     float distanceToLever = glm::length(Player.Position - LEVER_POSITION);
         bool isCloseToLever = (distanceToLever < 1.5f && !g_leverActivated);
@@ -1310,7 +1315,17 @@ void Alavanca(GLFWwindow* window){
             g_LeverAngle = g_LeverTargetAngle;
         else
             g_LeverAngle += (diff > 0.0f ? 1.0f : -1.0f) * maxStep;
-}
 
+        if (g_leverActivated && armadilhas){
+            g_LeverAtivationTime += deltaTime;
+            if (g_LeverAtivationTime >= TIME_KILL){
+                if( !CheckSafe(Player.Position) )
+                    glfwSetWindowShouldClose(window, GLFW_TRUE);
+                else{
+                    armadilhas = false;
+                }
+            }
+        }
+}
 // set makeprg=cd\ ..\ &&\ make\ run\ >/dev/null
 // vim: set spell spelllang=pt_br :

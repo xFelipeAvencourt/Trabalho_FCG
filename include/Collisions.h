@@ -4,3 +4,4 @@
 class Camera;
 void PlayerWallCollision(Camera &player, bool ghostMode);
 void PlayerObjectCollision(Camera &player, const std::map<int, struct AABB>& aabbList);
+bool CheckSafe(const glm::vec3& position);

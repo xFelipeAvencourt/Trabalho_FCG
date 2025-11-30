@@ -24,3 +24,5 @@
 #define PI          3.1415926535f
 #define GRAVITY     -25.0f
 #define PLAYER_HEIGHT SCALE_WALL / 40
+#define TIME_KILL 3.0f
+#define AGACHADO GROUND_LEVEL - 0.5f
