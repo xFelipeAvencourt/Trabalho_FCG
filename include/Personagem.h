@@ -70,24 +70,28 @@ public:
 
     }
 
-    void setCtrlMode(bool press){
-        if(press){
-            float descentSpeed = 1.0f;
-            while (Position.y > AGACHADO) {
-                Position.y -= descentSpeed * (1.0f / 60.0f);
-                if (Position.y < AGACHADO)
-                    Position.y = AGACHADO;
+    void setCtrlMode(bool press) {
+        if (!isJumping) {
+            if(press) {
+                isCrouched = true;
+                float descentSpeed = 1.0f;
+                while (Position.y > AGACHADO) {
+                    Position.y -= descentSpeed * (1.0f / 60.0f);
+                    if (Position.y < AGACHADO)
+                        Position.y = AGACHADO;
+                }
             }
-        }
-        else{
-            float ascentSpeed = 1.0f;
-            while (Position.y < GROUND_LEVEL) {
-                Position.y += ascentSpeed * (1.0f / 60.0f);
-                if (Position.y > GROUND_LEVEL)
-                    Position.y = GROUND_LEVEL;    
+            else {
+                isCrouched = false;
+                float ascentSpeed = 1.0f;
+                while (Position.y < GROUND_LEVEL) {
+                    Position.y += ascentSpeed * (1.0f / 60.0f);
+                    if (Position.y > GROUND_LEVEL)
+                        Position.y = GROUND_LEVEL;    
+                }
             }
+            updateCameraVectors();
         }
-        updateCameraVectors();
     }
 
     void ProcessKeyboard(Camera_Movement direction, float deltaTime, bool ghostMode = false) {
@@ -152,8 +156,14 @@ public:
             jumpVelocity += GRAVITY * deltaTime;
             Position.y += jumpVelocity * deltaTime;
 
-            if (Position.y <= GROUND_LEVEL) {
-                Position.y = GROUND_LEVEL;
+            float targetYPosition = 0.0f;
+            if (isCrouched)
+                targetYPosition = AGACHADO;
+            else
+                targetYPosition = GROUND_LEVEL;
+
+            if (Position.y <= targetYPosition) {
+                Position.y = targetYPosition;
                 jumpVelocity = 0.0f;
                 isJumping = false;
             }
@@ -162,6 +172,7 @@ public:
 
 private:
     bool isJumping = false;
+    bool isCrouched = false;
     float jumpVelocity = 0.0f;
     const float jumpForce = 8.0f;
 
