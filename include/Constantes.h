@@ -28,3 +28,5 @@
 #define PLAYER_HEIGHT SCALE_WALL / 40
 #define TIME_KILL 3.0f
 #define AGACHADO GROUND_LEVEL - 0.5f
+
+#define M_PI_2 1.57079632675f
