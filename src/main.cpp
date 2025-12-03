@@ -135,9 +135,11 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 ///////////////////////////////////////////////////////////////////////
 
 void SalaPrincipal();
-void Alavanca(GLFWwindow* window, bool &armadilhas);
+void Dardos(bool &armadilhas);
+void Alavanca(GLFWwindow* window, bool &armadilhas, bool &door);
 void DrawOBJ(int objectId,const std::vector<std::string>& parts,const glm::vec3& position,float size,const glm::vec3& rotation);
-
+void Tempo(GLFWwindow* window, bool &armadilhas);
+void Porta(bool &door);
 ///////////////////////////////////////////////////////////////////////
 /////////////////////////Matrizes//////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
@@ -193,6 +195,7 @@ bool  g_ghost = false;
 bool  g_showLeverText = false;
 bool  g_leverActivated = false;
 float g_LeverAngle = 0.0f;
+float g_DoorY = 0.1f;
 float g_LeverTargetAngle = 0.0f;
 float g_LeverSpeed = glm::radians(90.0f);
 
@@ -281,6 +284,7 @@ int main(int argc, char* argv[]){
     LoadTextureImage("../../data/Textures/door_txt.jpg");
     LoadTextureImage("../../data/Textures/teto.jpg");
     LoadTextureImage("../../data/Textures/mine.png");
+    LoadTextureImage("../../data/Textures/Dardo.jpg");
 
     ObjModel planemodel("../../data/plane.obj");
     ComputeNormals(&planemodel);
@@ -316,7 +320,12 @@ int main(int argc, char* argv[]){
     BuildTrianglesAndAddToVirtualScene(&playermodel);
     */
 
+    ObjModel trapmodel("../../data/Dardo.obj");
+    ComputeNormals(&trapmodel);
+    BuildTrianglesAndAddToVirtualScene(&trapmodel);
+
     bool armadilhas = true;
+    bool door = false;
    
     if ( argc > 1 )
     {
@@ -361,7 +370,7 @@ int main(int argc, char* argv[]){
             
         Player.Update(deltaTime);
 
-        PlayerWallCollision(Player, g_ghost);
+        PlayerWallCollision(Player, g_ghost, door);
         PlayerObjectCollision(Player, g_listaAABB);
 
     
@@ -378,7 +387,7 @@ int main(int argc, char* argv[]){
         float yawRad = Player.Yaw * (PI / 180.0f);
         float pitchRad = Player.Pitch * (PI / 180.0f);
         glm::mat4 model = Matrix_Translate(Player.Position.x, Player.Position.y - 1.0f, Player.Position.z)
-            * Matrix_Rotate_Y(PI / 2.0f)
+            * Matrix_Rotate_Y(M_PI_2.0f)
             * Matrix_Rotate_Y(-yawRad)
             * Matrix_Scale(PLAYER_HEIGHT, PLAYER_HEIGHT, PLAYER_HEIGHT);
 
@@ -389,7 +398,10 @@ int main(int argc, char* argv[]){
 
         SalaPrincipal();
         TextRendering_ShowFramesPerSecond(window);
-        Alavanca(window, armadilhas);
+        Tempo(window, armadilhas);
+        Alavanca(window, armadilhas, door);
+        Dardos(armadilhas);
+        Porta(door);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -482,6 +494,7 @@ void LoadShadersFromFiles(){
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage4"), 4);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage5"), 5);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage6"), 6);
+    glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage7"), 7);
     glUniform3f(glGetUniformLocation(g_GpuProgramID, "light_position"), LIGHT_POSITION.x, LIGHT_POSITION.y, LIGHT_POSITION.z);
     glUniform3f(glGetUniformLocation(g_GpuProgramID, "light_color"), LIGHT_COLOR.x, LIGHT_COLOR.y, LIGHT_COLOR.z);
     glUniform1f(glGetUniformLocation(g_GpuProgramID, "light_intensity"), LIGHT_INTENSITY);
@@ -1116,6 +1129,22 @@ void PrintObjModelInfo(ObjModel* model){
   }
 }
 
+void Dardos(bool &armadilhas){
+    if(armadilhas)
+        return;
+    #define TRAP    9
+    glm::mat4 model = Matrix_Identity();
+
+    for(int i = -SCALE_FLOOR; i < SCALE_FLOOR; i++)
+        for(int j = -SCALE_FLOOR; j < SCALE_FLOOR; j++){
+        model = Matrix_Translate(i, SCALE_WALL + 0.5f, j)
+               * Matrix_Rotate_X(-PI/2)
+               * Matrix_Scale(0.05f, 0.05f, 0.05f);
+        glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+        glUniform1i(g_object_id_uniform, TRAP);
+        DrawVirtualObject("throwing_dart");
+    }
+}
 void SalaPrincipal(){
 
     #define PLANE       1
@@ -1131,7 +1160,7 @@ void SalaPrincipal(){
 
     // Chão
     model = Matrix_Translate(0.0f,-1.1f,0.0f)
-            * Matrix_Scale(SCALE_FLOUR,SCALE_FLOUR,SCALE_FLOUR);
+            * Matrix_Scale(SCALE_FLOOR,SCALE_FLOOR,SCALE_FLOOR);
     glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
     glUniform1i(g_object_id_uniform, PLANE);
     DrawVirtualObject("the_plane");
@@ -1139,17 +1168,17 @@ void SalaPrincipal(){
     // Mesa
     objeto = {"Table_Circle.004","Leg_Cylinder.001","Support_Cube"};
     posicao = {0.0f, -1.1f, 0.0f};
-    rotacao = {0.0f, 0.0f, 0.0f};
+    rotacao = {0.0f, PI/4, 0.0f};
     DrawOBJ(TABLE,objeto,posicao,0.3f,rotacao);
 
     // Alavanca
     objeto = {"Cobblestone"};
     posicao = {0.0f, -0.25f, 0.0f};
-    rotacao = {0.0f, PI/2, 0.0f};
+    rotacao = {0.0f, M_PI_2, 0.0f};
     DrawOBJ(LEVER,objeto,posicao,0.05f,rotacao);
     objeto = {"Lever"};
     posicao = {0.00f, -0.25f, 0.0f};
-    rotacao = {g_LeverAngle, PI/2, 0.0f};
+    rotacao = {g_LeverAngle, M_PI_2, 0.0f};
     DrawOBJ(LEVER,objeto,posicao,0.05f,rotacao);
 
     // Lampada de mesa
@@ -1161,63 +1190,67 @@ void SalaPrincipal(){
     // Teto
     model = Matrix_Translate(0.0f,SCALE_WALL,0.0f)
             * Matrix_Rotate_X(PI)
-            * Matrix_Scale(SCALE_FLOUR,SCALE_FLOUR,SCALE_FLOUR);
+            * Matrix_Scale(SCALE_FLOOR,SCALE_FLOOR,SCALE_FLOOR);
     glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
     glUniform1i(g_object_id_uniform, CEILING);
     DrawVirtualObject("the_ceiling");
 
     // Parede frontal
-    model = Matrix_Translate(0.0f,SCALE_WALL/4,-SCALE_FLOUR)
-            * Matrix_Rotate_X(PI/2)
-            * Matrix_Scale(SCALE_FLOUR,SCALE_WALL,SCALE_WALL);
+    model = Matrix_Translate(0.0f,SCALE_WALL/4,-SCALE_FLOOR)
+            * Matrix_Rotate_X(M_PI_2)
+            * Matrix_Scale(SCALE_FLOOR,SCALE_WALL,SCALE_WALL);
     glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
     glUniform1i(g_object_id_uniform, WALL);
     DrawVirtualObject("the_wall");
 
     // Parede da porta - direita
-    model = Matrix_Translate(-0.60f*SCALE_FLOUR, SCALE_WALL / 4, SCALE_FLOUR)
-            * Matrix_Rotate_X(-PI/2)
-            * Matrix_Scale(0.50f*SCALE_FLOUR, SCALE_WALL, SCALE_WALL);
+    model = Matrix_Translate(-0.60f*SCALE_FLOOR, SCALE_WALL / 4, SCALE_FLOOR)
+            * Matrix_Rotate_X(-M_PI_2)
+            * Matrix_Scale(0.50f*SCALE_FLOOR, SCALE_WALL, SCALE_WALL);
     glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(g_object_id_uniform, WALL);
     DrawVirtualObject("the_wall");
 
     // Porta
-    objeto  = {"10057_wooden_door_v1","10057_wooden_door_frame_v1"};
-    posicao = {0.0f, 0.0f, SCALE_FLOUR};
-    rotacao = {PI/2.0f, 0.0f, 0.0f};
+    objeto  = {"10057_wooden_door_frame_v1"};
+    posicao = {0.0f, 0.1f, SCALE_FLOOR};
+    rotacao = {M_PI_2, 0.0f, PI};
     DrawOBJ(DOOR, objeto,posicao,SCALE_WALL/4,rotacao);
+    objeto = {"10057_wooden_door_v1"};
+    posicao = {0.0f, g_DoorY, SCALE_FLOOR};
+    rotacao = {M_PI_2, 0.0f, 0.0f};
+    DrawOBJ(DOOR, objeto, posicao, SCALE_WALL/4, rotacao);
    
     // Parede da porta - esquerda
-    model = Matrix_Translate(0.60f*SCALE_FLOUR, SCALE_WALL / 4, SCALE_FLOUR)
-            * Matrix_Rotate_X(-PI/2)
-            * Matrix_Scale(0.50f*SCALE_FLOUR, SCALE_WALL, SCALE_WALL);
+    model = Matrix_Translate(0.60f*SCALE_FLOOR, SCALE_WALL / 4, SCALE_FLOOR)
+            * Matrix_Rotate_X(-M_PI_2)
+            * Matrix_Scale(0.50f*SCALE_FLOOR, SCALE_WALL, SCALE_WALL);
     glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(g_object_id_uniform, WALL);
     DrawVirtualObject("the_wall");
 
     // Parede da porta - cima
-    model = Matrix_Translate(0.0f, 0.65f*SCALE_FLOUR, SCALE_FLOUR)
-            * Matrix_Rotate_X(-PI/2)
-            * Matrix_Scale(0.1f*SCALE_FLOUR, 0.01f*SCALE_FLOUR, SCALE_WALL);
+    model = Matrix_Translate(0.0f, 0.67f*SCALE_FLOOR, SCALE_FLOOR)
+            * Matrix_Rotate_X(-M_PI_2)
+            * Matrix_Scale(0.1f*SCALE_FLOOR, 0.01f*SCALE_FLOOR, SCALE_WALL);
     glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(g_object_id_uniform, WALL);
     DrawVirtualObject("the_wall");
 
     // Parede esquerda
-    model = Matrix_Translate(-SCALE_FLOUR, SCALE_WALL / 4, 0.0f)
-            * Matrix_Rotate_X(PI / 2)
-            * Matrix_Rotate_Z(-PI / 2)
-            * Matrix_Scale(SCALE_FLOUR, SCALE_WALL, SCALE_WALL);
+    model = Matrix_Translate(-SCALE_FLOOR, SCALE_WALL / 4, 0.0f)
+            * Matrix_Rotate_X(M_PI_2)
+            * Matrix_Rotate_Z(-M_PI_2)
+            * Matrix_Scale(SCALE_FLOOR, SCALE_WALL, SCALE_WALL);
     glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(g_object_id_uniform, WALL);
     DrawVirtualObject("the_wall");
 
     // Parede direita
-    model = Matrix_Translate(SCALE_FLOUR, SCALE_WALL / 4, 0.0f)
-            * Matrix_Rotate_X(PI / 2)
-            * Matrix_Rotate_Z(PI / 2)
-            * Matrix_Scale(SCALE_FLOUR, SCALE_WALL, SCALE_WALL);
+    model = Matrix_Translate(SCALE_FLOOR, SCALE_WALL / 4, 0.0f)
+            * Matrix_Rotate_X(M_PI_2)
+            * Matrix_Rotate_Z(M_PI_2)
+            * Matrix_Scale(SCALE_FLOOR, SCALE_WALL, SCALE_WALL);
     glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(g_object_id_uniform, WALL);
     DrawVirtualObject("the_wall");
@@ -1244,7 +1277,7 @@ void DrawOBJ(int objectId,const std::vector<std::string>& parts,const glm::vec3&
     const glm::vec3 center = (bbox_min + bbox_max) * 0.5f;
     const float width = bbox_max.x - bbox_min.x;
     const float depth = bbox_max.z - bbox_min.z;
-    const float desiredSize = size * SCALE_FLOUR;
+    const float desiredSize = size * SCALE_FLOOR;
     
     float scale = 1.0f;
     const float biggestDimension = std::max(width, depth);
@@ -1290,7 +1323,7 @@ void DrawOBJ(int objectId,const std::vector<std::string>& parts,const glm::vec3&
     }
 }
 
-void Alavanca(GLFWwindow* window, bool &armadilhas){
+void Alavanca(GLFWwindow* window, bool &armadilhas, bool &door) {
 
     float distanceToLever = glm::length(Player.Position - LEVER_POSITION);
         bool isCloseToLever = (distanceToLever < 1.5f && !g_leverActivated);
@@ -1316,16 +1349,61 @@ void Alavanca(GLFWwindow* window, bool &armadilhas){
         else
             g_LeverAngle += (diff > 0.0f ? 1.0f : -1.0f) * maxStep;
 
-        if (g_leverActivated && armadilhas){
+    if (g_leverActivated && !door && armadilhas){
             g_LeverAtivationTime += deltaTime;
             if (g_LeverAtivationTime >= TIME_KILL){
                 if( !CheckSafe(Player.Position) )
-                    glfwSetWindowShouldClose(window, GLFW_TRUE);
+                    glfwSetWindowShouldClose(window, GL_FALSE);
                 else{
                     armadilhas = false;
+                    door = true;
                 }
             }
         }
+}
+
+void Porta(bool &door) {
+
+    const float openY = 5.0f;
+    const float closeY = 0.1f;
+
+    float targetY = door ? openY : closeY;
+
+    const float doorSpeed = 1.5f;
+    float diff = targetY - g_DoorY;
+    float maxStep = doorSpeed * deltaTime;
+
+    if (fabs(diff) <= maxStep)
+        g_DoorY = targetY;
+    else
+        g_DoorY += (diff > 0.0f ? 1.0f : -1.0f) * maxStep;
+}
+
+void Tempo(GLFWwindow* window, bool &armadilhas){
+    
+    static double START_TIME = -3.0;
+    if (START_TIME < 0.0)
+        START_TIME = glfwGetTime();
+    
+    double now = glfwGetTime();
+    float elapsed = (float)(now - START_TIME);
+    float remaining = TOTAL_TIME - elapsed;
+    
+    if (remaining < 0.0f){
+        remaining = 0.0f;
+        armadilhas = false;
+    }
+    else if (remaining > TOTAL_TIME)
+        remaining = TOTAL_TIME;
+    
+    char time_text[50];
+    sprintf(time_text, "Tempo restante: %.1f", remaining);
+    
+    float text_width = strlen(time_text) * TextRendering_CharWidth(window);
+    float x_pos = -0.2f - 0.5f * text_width;
+    float y_pos = 0.9f - TextRendering_LineHeight(window);
+    
+    TextRendering_PrintString(window, time_text, x_pos, y_pos, FONT_HEIGHT);
 }
 // set makeprg=cd\ ..\ &&\ make\ run\ >/dev/null
 // vim: set spell spelllang=pt_br :

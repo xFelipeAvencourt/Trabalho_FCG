@@ -5,10 +5,12 @@
 #define FARPLANE    -15.0f
 
 // Dimensoes da sala:
-#define SCALE_FLOUR     5.0f
+#define SCALE_FLOOR     5.0f
 #define SCALE_WALL      2.0f
 #define SCALE_TABLE     0.5f
 
+// Constante de dificuldade
+#define TOTAL_TIME 60.0f
 // LUZ:
 #define LIGHT_POSITION      glm::vec3(0.0f, SCALE_WALL - 0.75f, 0.0f)
 #define LIGHT_COLOR         glm::vec3(1.0f, 0.95f, 0.8f)

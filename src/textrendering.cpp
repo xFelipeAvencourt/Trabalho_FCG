@@ -31,7 +31,8 @@ const GLchar* const textfragmentshader_source = ""
 "out vec4 fragColor;\n"
 "void main()\n"
 "{\n"
-    "fragColor = vec4(0, 0, 0, texture(tex, texCoords).r);\n"
+    "// Render text in white (RGB = 1.0) using the glyph alpha from the texture\n"
+    "fragColor = vec4(1.0, 1.0, 1.0, texture(tex, texCoords).r);\n"
 "}\n"
 "\0";
 

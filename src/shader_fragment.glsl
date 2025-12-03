@@ -36,6 +36,7 @@ uniform float light_range;
 #define LAMP        5
 #define DOOR        6
 #define LEVER       8
+#define TRAP        9
 uniform int object_id;
 
 // Variáveis para acesso das imagens de textura
@@ -46,6 +47,7 @@ uniform sampler2D TextureImage3;
 uniform sampler2D TextureImage4;
 uniform sampler2D TextureImage5;
 uniform sampler2D TextureImage6;
+uniform sampler2D TextureImage7;
 
 // O valor de saída ("out") de um Fragment Shader é a cor final do fragmento.
 out vec4 color;
@@ -85,7 +87,7 @@ void main()
         U = texcoords.x * tiling;
         V = texcoords.y * tiling;
     }
-    else if( object_id == TABLE || object_id == DOOR || object_id == LAMP || object_id == LEVER){
+    else if( object_id == TABLE || object_id == DOOR || object_id == LAMP || object_id == LEVER || object_id == TRAP){
         float tiling = 1.0;
         U = texcoords.x * tiling;
         V = texcoords.y * tiling;
@@ -118,6 +120,10 @@ void main()
         Kd0 = texture(TextureImage6, vec2(U,V)).rgb;
         Kd1 = vec3(0.0);
     }
+    else if( object_id == TRAP) {
+        Kd0 = texture(TextureImage7, vec2(U,V)).rgb;
+        Kd1 = vec3(0.0);
+    }
 /////////////////////////////////////////////
 //  LUZ
 /////////////////////////////////////////////
@@ -125,7 +131,7 @@ void main()
     float cone_intensity = 1.0;
     float distance_attenuation = 1.0;
 
-    if (object_id == TABLE || object_id == PLANE || object_id == CEILING || object_id == LEVER) {
+    if (object_id == TABLE || object_id == PLANE || object_id == CEILING || object_id == LEVER || object_id == TRAP) {
 
         vec3 light_to_point = normalize(p3 - light_position);
         vec3 spot_dir = normalize(light_direction);
@@ -157,7 +163,7 @@ void main()
     if (object_id == TABLE || object_id == PLANE || object_id == CEILING)
         diffuse *= cone_intensity;
 
-    if (object_id == WALL || object_id == DOOR || object_id == LEVER) {
+    if (object_id == WALL || object_id == DOOR || object_id == LEVER || object_id == TRAP) {
         float distance_wall = length(light_position - p3);
         float wall_atten = 1.0 / (1.0 + 10 * distance_wall + 0.1 * distance_wall * distance_wall);
         diffuse *= wall_atten;

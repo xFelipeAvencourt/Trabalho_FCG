@@ -6,16 +6,21 @@
 #include <glm/glm.hpp>
 #include <algorithm>
 
-#define margin (PLAYER_HEIGHT / 2.0f + 0.05f)
+#define margin (PLAYER_HEIGHT / 2.0f + 0.08f)
 
-void PlayerWallCollision(Camera &player, bool ghostMode) {
+void PlayerWallCollision(Camera &player, bool ghostMode, bool door) {
     if (ghostMode) return;
 
-    const float minX = -SCALE_FLOUR + margin;
-    const float maxX =  SCALE_FLOUR - margin;
-    const float minZ = -SCALE_FLOUR + margin;
-    const float maxZ =  SCALE_FLOUR - margin;
-    
+    const float minX = -SCALE_FLOOR + margin;
+    const float maxX =  SCALE_FLOOR - margin;
+    const float minZ = -SCALE_FLOOR + margin;
+    const float maxZ =  SCALE_FLOOR - margin;
+
+    if(door && player.Position.z > SCALE_FLOOR - margin && player.Position.x >= -SCALE_WALL / 4 && player.Position.x <= SCALE_WALL / 4){
+            printf("Win\n");
+            // tela de vitória
+            return;
+    }
     if(player.Position.x < minX) player.Position.x = minX;
     if(player.Position.x > maxX) player.Position.x = maxX;
     if(player.Position.z < minZ) player.Position.z = minZ;
