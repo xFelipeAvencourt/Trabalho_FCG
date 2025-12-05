@@ -1464,8 +1464,8 @@ void Telas(GLFWwindow* window){
         } else if (g_GameState == GameState::GAME_OVER) {
             switch (g_DeathCause) {
                 case DeathCause::NONE:
-                    TextRendering_PrintString(window, "Parabéns, você conseguiu!", 
-                        -0.4f - 0.5f * strlen("Parabéns, você conseguiu!") * TextRendering_CharWidth(window), 
+                    TextRendering_PrintString(window, "Parabens, voce conseguiu!", 
+                        -0.4f - 0.5f * strlen("Parabens, voce conseguiu!") * TextRendering_CharWidth(window), 
                         0.0f - 0.5f * TextRendering_LineHeight(window), FONT_HEIGHT);
                     break;
                 case DeathCause::DARDO:
