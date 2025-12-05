@@ -28,8 +28,9 @@ void PlayerWallCollision(Camera &player, bool ghostMode, bool door) {
     
 }
 
-void PlayerObjectCollision(Camera &player, const std::map<int, struct AABB>& aabbList) {
-        
+void PlayerObjectCollision(Camera &player, bool ghostMode, const std::map<int, struct AABB>& aabbList) {
+    if (ghostMode) return;
+
     for (const auto& pair : aabbList) {
 
         const AABB& aabb = pair.second;

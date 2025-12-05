@@ -30,3 +30,9 @@
 #define AGACHADO GROUND_LEVEL - 0.5f
 
 #define M_PI_2 1.57079632675f
+
+#define BASE_DOOR_X 0.0f
+#define BASE_DOOR_Y 0.1f
+#define BASE_DOOR_Z SCALE_FLOOR
+#define BASE_DOOR_ANGLE 0.0f
+#define DOOR_RADIUS 0.5f

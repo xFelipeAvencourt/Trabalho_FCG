@@ -88,6 +88,18 @@ struct ObjModel
     }
 };
 
+enum class GameState {
+    START_MENU,
+    GAME_PLAY,
+    GHOST_MODE,
+    GAME_OVER
+};
+enum class DeathCause {
+    NONE,
+    TRAP,
+    TIMEOUT
+};
+
 
 void PushMatrix(glm::mat4 M);
 void PopMatrix(glm::mat4& M);
@@ -140,6 +152,7 @@ void Alavanca(GLFWwindow* window, bool &armadilhas, bool &door);
 void DrawOBJ(int objectId,const std::vector<std::string>& parts,const glm::vec3& position,float size,const glm::vec3& rotation);
 void Tempo(GLFWwindow* window, bool &armadilhas);
 void Porta(bool &door);
+void allowPlayerMovement(int key, bool pressed);
 ///////////////////////////////////////////////////////////////////////
 /////////////////////////Matrizes//////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
@@ -195,9 +208,13 @@ bool  g_ghost = false;
 bool  g_showLeverText = false;
 bool  g_leverActivated = false;
 float g_LeverAngle = 0.0f;
-float g_DoorY = 0.1f;
+float g_DoorX = BASE_DOOR_X;
+float g_DoorY = BASE_DOOR_Y;
+float g_DoorZ = BASE_DOOR_Z;
+float g_DoorAngle = 0.0f;
 float g_LeverTargetAngle = 0.0f;
 float g_LeverSpeed = glm::radians(90.0f);
+float g_startGamePlayTime = 0.0f;
 
 // Variáveis que definem um programa de GPU (shaders). Veja função LoadShadersFromFiles().
 GLuint g_GpuProgramID = 0;
@@ -214,12 +231,16 @@ GLint g_light_cutoff_angle_uniform;
 GLint g_light_outer_cutoff_uniform;
 GLint g_light_range_uniform;
 
+GameState g_GameState = GameState::START_MENU;
+GameState g_GameStateBeforeGhost = GameState::START_MENU;
+DeathCause g_DeathCause = DeathCause::NONE;
+
 // Tempo
 float g_LeverAtivationTime = 0.0f;
 
 GLuint g_NumLoadedTextures = 0;
 
-int main(int argc, char* argv[]){
+int main(int argc, char* argv[]) {
     // Inicialização da biblioteca GLFW, que gerencia a janela
     int success = glfwInit();
     if (!success){
@@ -371,7 +392,7 @@ int main(int argc, char* argv[]){
         Player.Update(deltaTime);
 
         PlayerWallCollision(Player, g_ghost, door);
-        PlayerObjectCollision(Player, g_listaAABB);
+        PlayerObjectCollision(Player, g_ghost, g_listaAABB);
 
     
         mat4 view = Player.GetViewMatrix();
@@ -402,6 +423,32 @@ int main(int argc, char* argv[]){
         Alavanca(window, armadilhas, door);
         Dardos(armadilhas);
         Porta(door);
+
+        if (g_GameState == GameState::START_MENU) {
+            TextRendering_PrintString(window, "Pressione ENTER para iniciar o jogo", 
+                -0.3f - 0.5f * strlen("Pressione ENTER para iniciar o jogo") * TextRendering_CharWidth(window), 
+                0.0f - 0.5f * TextRendering_LineHeight(window), FONT_HEIGHT);
+        } else if (g_GameState == GameState::GAME_OVER) {
+            switch (g_DeathCause) {
+                case DeathCause::NONE:
+                    TextRendering_PrintString(window, "Parabéns, você conseguiu!", 
+                        -0.4f - 0.5f * strlen("Parabéns, você conseguiu!") * TextRendering_CharWidth(window), 
+                        0.0f - 0.5f * TextRendering_LineHeight(window), FONT_HEIGHT);
+                    break;
+                case DeathCause::TRAP:
+                    TextRendering_PrintString(window, "Voce morreu! Cuidado com as armadilhas!", 
+                        -0.4f - 0.5f * strlen("Voce morreu! Cuidado com as armadilhas!") * TextRendering_CharWidth(window), 
+                        0.0f - 0.5f * TextRendering_LineHeight(window), FONT_HEIGHT);
+                    break;
+                case DeathCause::TIMEOUT:
+                    TextRendering_PrintString(window, "Voce morreu! O tempo acabou!", 
+                        -0.3f - 0.5f * strlen("Voce morreu! O tempo acabou!") * TextRendering_CharWidth(window), 
+                        0.0f - 0.5f * TextRendering_LineHeight(window), FONT_HEIGHT);
+                    break;
+                
+            }
+        }
+        
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -902,6 +949,12 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
         g_AngleZ += (mod & GLFW_MOD_SHIFT) ? -delta : delta;
 
     if (key == GLFW_KEY_G && action == GLFW_PRESS){
+        if (!g_ghost) {
+            g_GameStateBeforeGhost = g_GameState;
+            g_GameState = GameState::GHOST_MODE;
+        } else {
+            g_GameState = g_GameStateBeforeGhost;
+        }
         g_ghost = !g_ghost;
         Player.setGhostMode(g_ghost);
     }
@@ -923,16 +976,46 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
     }
 
     // Movimento do Jogador
-    if (key == GLFW_KEY_W)
-        g_WPressed = pressed;
-    if (key == GLFW_KEY_S)
-        g_SPressed = pressed;
-    if (key == GLFW_KEY_A)
-        g_APressed = pressed;
-    if (key == GLFW_KEY_D)
-        g_DPressed = pressed;
-    if (key == GLFW_KEY_SPACE)
-        g_SpacePressed = pressed;
+    switch (g_GameState) {
+        case GameState::START_MENU:
+            if (key == GLFW_KEY_ENTER && action == GLFW_PRESS){
+                g_GameState = GameState::GAME_PLAY;
+                g_startGamePlayTime = (float)glfwGetTime();
+            }
+            break;
+        case GameState::GAME_PLAY:
+            allowPlayerMovement(key, pressed);
+            break;
+        case GameState::GHOST_MODE:
+            allowPlayerMovement(key, pressed);
+            break;
+        case GameState::GAME_OVER:
+            break;
+        default:
+            return;
+    }
+}
+
+void allowPlayerMovement(int key, bool pressed) {
+    switch (key) {
+        case GLFW_KEY_W:
+            g_WPressed = pressed;
+            break;
+        case GLFW_KEY_S:
+            g_SPressed = pressed;
+            break;
+        case GLFW_KEY_A:
+            g_APressed = pressed;
+            break;
+        case GLFW_KEY_D:
+            g_DPressed = pressed;
+            break;
+        case GLFW_KEY_SPACE:
+            g_SpacePressed = pressed;
+            break;
+        default:
+            return;
+    }
 }
 
 void ErrorCallback(int error, const char* description){
@@ -1217,8 +1300,8 @@ void SalaPrincipal(){
     rotacao = {M_PI_2, 0.0f, PI};
     DrawOBJ(DOOR, objeto,posicao,SCALE_WALL/4,rotacao);
     objeto = {"10057_wooden_door_v1"};
-    posicao = {0.0f, g_DoorY, SCALE_FLOOR};
-    rotacao = {M_PI_2, 0.0f, 0.0f};
+    posicao = {g_DoorX, g_DoorY, g_DoorZ};
+    rotacao = {M_PI_2, g_DoorAngle, 0.0f};
     DrawOBJ(DOOR, objeto, posicao, SCALE_WALL/4, rotacao);
    
     // Parede da porta - esquerda
@@ -1324,6 +1407,8 @@ void DrawOBJ(int objectId,const std::vector<std::string>& parts,const glm::vec3&
 }
 
 void Alavanca(GLFWwindow* window, bool &armadilhas, bool &door) {
+    if (g_GameState != GameState::GAME_PLAY)
+        return;
 
     float distanceToLever = glm::length(Player.Position - LEVER_POSITION);
         bool isCloseToLever = (distanceToLever < 1.5f && !g_leverActivated);
@@ -1363,37 +1448,38 @@ void Alavanca(GLFWwindow* window, bool &armadilhas, bool &door) {
 }
 
 void Porta(bool &door) {
+    const float openedAngle = M_PI_2;
+    const float closedAngle = 0.0f;
 
-    const float openY = 5.0f;
-    const float closeY = 0.1f;
+    float targetAngle = door ? openedAngle : closedAngle;
 
-    float targetY = door ? openY : closeY;
-
-    const float doorSpeed = 1.5f;
-    float diff = targetY - g_DoorY;
+    const float doorSpeed = 1.0f;
+    float diff = targetAngle - g_DoorAngle;
     float maxStep = doorSpeed * deltaTime;
 
     if (fabs(diff) <= maxStep)
-        g_DoorY = targetY;
+        g_DoorAngle = targetAngle;
     else
-        g_DoorY += (diff > 0.0f ? 1.0f : -1.0f) * maxStep;
+        g_DoorAngle += (diff > 0.0f ? 1.0f : -1.0f) * maxStep;
+
+    g_DoorX = BASE_DOOR_X - DOOR_RADIUS * (1.0f - cos(g_DoorAngle));
+    g_DoorZ = BASE_DOOR_Z - DOOR_RADIUS * sin(g_DoorAngle);
 }
 
 void Tempo(GLFWwindow* window, bool &armadilhas){
-    
-    static double START_TIME = -3.0;
-    if (START_TIME < 0.0)
-        START_TIME = glfwGetTime();
+    if (g_GameState != GameState::GAME_PLAY)
+        return;
     
     double now = glfwGetTime();
-    float elapsed = (float)(now - START_TIME);
+    float elapsed = (float)(now - g_startGamePlayTime);
     float remaining = TOTAL_TIME - elapsed;
     
-    if (remaining < 0.0f){
+    if (remaining <= 0.0f){
         remaining = 0.0f;
         armadilhas = false;
-    }
-    else if (remaining > TOTAL_TIME)
+        g_GameState = GameState::GAME_OVER;
+        g_DeathCause = DeathCause::TIMEOUT;
+    } else if (remaining > TOTAL_TIME)
         remaining = TOTAL_TIME;
     
     char time_text[50];
