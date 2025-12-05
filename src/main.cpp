@@ -33,7 +33,7 @@
 #include "Collisions.h"
 #include "SceneObject.h"
 
-#define DADOS "INF01047 - 00342904 - Felipe Avencourt && Fernando Fink"
+#define DADOS "INF01047 - 00342904 - Felipe Avencourt && 00342166 - Fernando Fink"
 
 using namespace std;
 
@@ -391,20 +391,6 @@ int main(int argc, char* argv[]) {
         // Enviamos as matrizes "view" e "projection" para a GPU
         glUniformMatrix4fv(g_view_uniform       , 1 , GL_FALSE , glm::value_ptr(view));
         glUniformMatrix4fv(g_projection_uniform , 1 , GL_FALSE , glm::value_ptr(projection));
-
-        /*
-        // PERSONAGEM
-        float yawRad = Player.Yaw * (PI / 180.0f);
-        float pitchRad = Player.Pitch * (PI / 180.0f);
-        glm::mat4 model = Matrix_Translate(Player.Position.x, Player.Position.y - 1.0f, Player.Position.z)
-            * Matrix_Rotate_Y(PI_2.0f)
-            * Matrix_Rotate_Y(-yawRad)
-            * Matrix_Scale(PLAYER_HEIGHT, PLAYER_HEIGHT, PLAYER_HEIGHT);
-
-        glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, PERSON);
-        DrawVirtualObject("Group1");
-        */
 
         SalaPrincipal(door, exibirDardos);
         TextRendering_ShowFramesPerSecond(window);
@@ -1178,7 +1164,7 @@ void PrintObjModelInfo(ObjModel* model){
   }
 }
 
-void Dardos(bool &door, bool &exibirDardos){
+void Dardos(bool &door, bool &exibirDardos) {
     #define TRAP    9
     static double g_lastTrapTime = 0.0;
     static bool trapTimerStarted = false;
@@ -1194,7 +1180,7 @@ void Dardos(bool &door, bool &exibirDardos){
     }
     
     double currentTime = glfwGetTime();
-    if(currentTime - g_lastTrapTime > 50.0f) {
+    if(currentTime - g_lastTrapTime > 5.0f) {
         exibirDardos = false;
         return;
     }
@@ -1203,13 +1189,21 @@ void Dardos(bool &door, bool &exibirDardos){
     glm::mat4 model;
     glUniform1i(g_object_id_uniform, TRAP);
     
-    float pos = fmod((currentTime - g_lastTrapTime) * 1.0f, 2*SCALE_WALL);
+    float pos = fmod((currentTime - g_lastTrapTime) * 5.0f, 2*SCALE_WALL);
     for(int i = -SCALE_FLOOR; i < SCALE_FLOOR; i++)
         for(int j = -SCALE_FLOOR; j < SCALE_FLOOR; j++) {
             model = Matrix_Translate(i+1.0f, SCALE_WALL - pos, j+1.0f) * base;
             glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
             DrawVirtualObject("throwing_dart");
         }
+    if (SCALE_WALL - pos < -1.9f) {
+        if (!CheckSafe(Player.Position)) {
+            g_GameState = GameState::GAME_OVER;
+            g_DeathCause = DeathCause::DARDO;
+        }
+        exibirDardos = false;
+        trapTimerStarted = false;
+    }
 }
 
 void SalaPrincipal(bool &door, bool &exibirDardos){
@@ -1325,7 +1319,8 @@ void SalaPrincipal(bool &door, bool &exibirDardos){
     Dardos(door, exibirDardos);
 }
 
-// Função adaptada para desenhar objetos compostos por várias partes - gerado por I.A.
+// Função adaptada para desenhar objetos compostos por várias partes.
+// FONTE: Adaptado a partir de código gerado por I.A. (generalização de código específico)
 void DrawOBJ(int objectId,const std::vector<std::string>& parts,const glm::vec3& position,float size,const glm::vec3& rotation) {
     glm::vec3 bbox_min(std::numeric_limits<float>::max());
     glm::vec3 bbox_max(std::numeric_limits<float>::lowest());
@@ -1392,7 +1387,7 @@ void DrawOBJ(int objectId,const std::vector<std::string>& parts,const glm::vec3&
     }
 }
 
-void Alavanca(GLFWwindow* window, bool &door, bool &armadilhasDesativadas){
+void Alavanca(GLFWwindow* window, bool &door, bool &armadilhasDesativadas) {
     if (g_GameState != GameState::GAME_PLAY)
         return;
 
@@ -1426,11 +1421,6 @@ void Alavanca(GLFWwindow* window, bool &door, bool &armadilhasDesativadas){
     if (g_leverActivated && TimeOpen == 0.0)
         TimeOpen = glfwGetTime();
     if (TimeOpen > 0.0 && glfwGetTime() - TimeOpen >= 3.0) {
-        if ( !CheckSafe(Player.Position) && !armadilhasDesativadas ) {
-            g_GameState = GameState::GAME_OVER;
-            g_DeathCause = DeathCause::DARDO;
-            //glfwSetWindowShouldClose(window, GL_TRUE);
-        }
         armadilhasDesativadas = true;
     }
 
