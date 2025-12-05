@@ -50,7 +50,7 @@ enum class GameState {
 #define DEATH_CAUSE
 enum class DeathCause {
     NONE,
-    TRAP,
+    DARDO,
     TIMEOUT
 };
 #endif
