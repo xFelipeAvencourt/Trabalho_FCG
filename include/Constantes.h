@@ -23,13 +23,12 @@
 // TEXTOS:
 #define FONT_HEIGHT      3.0f
 
-#define PI          3.1415926535f
+#define PI 3.1415926535f
+#define PI_2 1.57079632675f
 #define GRAVITY     -25.0f
 #define PLAYER_HEIGHT SCALE_WALL / 40
 #define TIME_KILL 3.0f
 #define AGACHADO GROUND_LEVEL - 0.5f
-
-#define M_PI_2 1.57079632675f
 
 #define BASE_DOOR_X 0.0f
 #define BASE_DOOR_Y 0.1f

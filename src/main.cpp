@@ -96,7 +96,7 @@ enum class GameState {
 };
 enum class DeathCause {
     NONE,
-    TRAP,
+    DARDO,
     TIMEOUT
 };
 
@@ -146,12 +146,13 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 ///////////////////// Funções auxiliares ///////////////////////////////
 ///////////////////////////////////////////////////////////////////////
 
-void SalaPrincipal();
-void Dardos(bool &armadilhas);
-void Alavanca(GLFWwindow* window, bool &armadilhas, bool &door);
+void Dardos(bool &door, bool &exibirDardos);
+void SalaPrincipal(bool &door, bool &exibirDardos);
+void Alavanca(GLFWwindow* window, bool &door, bool &armadilhasDesativadas);
 void DrawOBJ(int objectId,const std::vector<std::string>& parts,const glm::vec3& position,float size,const glm::vec3& rotation);
-void Tempo(GLFWwindow* window, bool &armadilhas);
+void Tempo(GLFWwindow* window);
 void Porta(bool &door);
+void Telas(GLFWwindow* window);
 void allowPlayerMovement(int key, bool pressed);
 ///////////////////////////////////////////////////////////////////////
 /////////////////////////Matrizes//////////////////////////////////////
@@ -345,8 +346,9 @@ int main(int argc, char* argv[]) {
     ComputeNormals(&trapmodel);
     BuildTrianglesAndAddToVirtualScene(&trapmodel);
 
-    bool armadilhas = true;
     bool door = false;
+    bool armadilhasDesativadas = false;
+    bool exibirDardos = true;
    
     if ( argc > 1 )
     {
@@ -408,7 +410,7 @@ int main(int argc, char* argv[]) {
         float yawRad = Player.Yaw * (PI / 180.0f);
         float pitchRad = Player.Pitch * (PI / 180.0f);
         glm::mat4 model = Matrix_Translate(Player.Position.x, Player.Position.y - 1.0f, Player.Position.z)
-            * Matrix_Rotate_Y(M_PI_2.0f)
+            * Matrix_Rotate_Y(PI_2.0f)
             * Matrix_Rotate_Y(-yawRad)
             * Matrix_Scale(PLAYER_HEIGHT, PLAYER_HEIGHT, PLAYER_HEIGHT);
 
@@ -417,37 +419,12 @@ int main(int argc, char* argv[]) {
         DrawVirtualObject("Group1");
         */
 
-        SalaPrincipal();
+        SalaPrincipal(door, exibirDardos);
         TextRendering_ShowFramesPerSecond(window);
-        Tempo(window, armadilhas);
-        Alavanca(window, armadilhas, door);
-        Dardos(armadilhas);
+        Tempo(window);
+        Alavanca(window, door, armadilhasDesativadas);
         Porta(door);
-
-        if (g_GameState == GameState::START_MENU) {
-            TextRendering_PrintString(window, "Pressione ENTER para iniciar o jogo", 
-                -0.3f - 0.5f * strlen("Pressione ENTER para iniciar o jogo") * TextRendering_CharWidth(window), 
-                0.0f - 0.5f * TextRendering_LineHeight(window), FONT_HEIGHT);
-        } else if (g_GameState == GameState::GAME_OVER) {
-            switch (g_DeathCause) {
-                case DeathCause::NONE:
-                    TextRendering_PrintString(window, "Parabéns, você conseguiu!", 
-                        -0.4f - 0.5f * strlen("Parabéns, você conseguiu!") * TextRendering_CharWidth(window), 
-                        0.0f - 0.5f * TextRendering_LineHeight(window), FONT_HEIGHT);
-                    break;
-                case DeathCause::TRAP:
-                    TextRendering_PrintString(window, "Voce morreu! Cuidado com as armadilhas!", 
-                        -0.4f - 0.5f * strlen("Voce morreu! Cuidado com as armadilhas!") * TextRendering_CharWidth(window), 
-                        0.0f - 0.5f * TextRendering_LineHeight(window), FONT_HEIGHT);
-                    break;
-                case DeathCause::TIMEOUT:
-                    TextRendering_PrintString(window, "Voce morreu! O tempo acabou!", 
-                        -0.3f - 0.5f * strlen("Voce morreu! O tempo acabou!") * TextRendering_CharWidth(window), 
-                        0.0f - 0.5f * TextRendering_LineHeight(window), FONT_HEIGHT);
-                    break;
-                
-            }
-        }
+        Telas(window);
         
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -1212,23 +1189,41 @@ void PrintObjModelInfo(ObjModel* model){
   }
 }
 
-void Dardos(bool &armadilhas){
-    if(armadilhas)
-        return;
+void Dardos(bool &door, bool &exibirDardos){
     #define TRAP    9
-    glm::mat4 model = Matrix_Identity();
-
-    for(int i = -SCALE_FLOOR; i < SCALE_FLOOR; i++)
-        for(int j = -SCALE_FLOOR; j < SCALE_FLOOR; j++){
-        model = Matrix_Translate(i, SCALE_WALL + 0.5f, j)
-               * Matrix_Rotate_X(-PI/2)
-               * Matrix_Scale(0.05f, 0.05f, 0.05f);
-        glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, TRAP);
-        DrawVirtualObject("throwing_dart");
+    static double g_lastTrapTime = 0.0;
+    static bool trapTimerStarted = false;
+    
+    if(!door)
+        return;
+    if(!exibirDardos)
+        return;
+    
+    if(!trapTimerStarted) {
+        g_lastTrapTime = glfwGetTime();
+        trapTimerStarted = true;
     }
+    
+    double currentTime = glfwGetTime();
+    if(currentTime - g_lastTrapTime > 50.0f) {
+        exibirDardos = false;
+        return;
+    }
+    
+    glm::mat4 base = Matrix_Rotate_X(-PI_2) * Matrix_Scale(0.1f, 0.1f, 0.1f);
+    glm::mat4 model;
+    glUniform1i(g_object_id_uniform, TRAP);
+    
+    float pos = fmod((currentTime - g_lastTrapTime) * 1.0f, 2*SCALE_WALL);
+    for(int i = -SCALE_FLOOR; i < SCALE_FLOOR; i++)
+        for(int j = -SCALE_FLOOR; j < SCALE_FLOOR; j++) {
+            model = Matrix_Translate(i+1.0f, SCALE_WALL - pos, j+1.0f) * base;
+            glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+            DrawVirtualObject("throwing_dart");
+        }
 }
-void SalaPrincipal(){
+
+void SalaPrincipal(bool &door, bool &exibirDardos){
 
     #define PLANE       1
     #define WALL        2
@@ -1257,11 +1252,11 @@ void SalaPrincipal(){
     // Alavanca
     objeto = {"Cobblestone"};
     posicao = {0.0f, -0.25f, 0.0f};
-    rotacao = {0.0f, M_PI_2, 0.0f};
+    rotacao = {0.0f, PI_2, 0.0f};
     DrawOBJ(LEVER,objeto,posicao,0.05f,rotacao);
     objeto = {"Lever"};
     posicao = {0.00f, -0.25f, 0.0f};
-    rotacao = {g_LeverAngle, M_PI_2, 0.0f};
+    rotacao = {g_LeverAngle, PI_2, 0.0f};
     DrawOBJ(LEVER,objeto,posicao,0.05f,rotacao);
 
     // Lampada de mesa
@@ -1280,7 +1275,7 @@ void SalaPrincipal(){
 
     // Parede frontal
     model = Matrix_Translate(0.0f,SCALE_WALL/4,-SCALE_FLOOR)
-            * Matrix_Rotate_X(M_PI_2)
+            * Matrix_Rotate_X(PI_2)
             * Matrix_Scale(SCALE_FLOOR,SCALE_WALL,SCALE_WALL);
     glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
     glUniform1i(g_object_id_uniform, WALL);
@@ -1288,7 +1283,7 @@ void SalaPrincipal(){
 
     // Parede da porta - direita
     model = Matrix_Translate(-0.60f*SCALE_FLOOR, SCALE_WALL / 4, SCALE_FLOOR)
-            * Matrix_Rotate_X(-M_PI_2)
+            * Matrix_Rotate_X(-PI_2)
             * Matrix_Scale(0.50f*SCALE_FLOOR, SCALE_WALL, SCALE_WALL);
     glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(g_object_id_uniform, WALL);
@@ -1297,16 +1292,16 @@ void SalaPrincipal(){
     // Porta
     objeto  = {"10057_wooden_door_frame_v1"};
     posicao = {0.0f, 0.1f, SCALE_FLOOR};
-    rotacao = {M_PI_2, 0.0f, PI};
+    rotacao = {PI_2, 0.0f, PI};
     DrawOBJ(DOOR, objeto,posicao,SCALE_WALL/4,rotacao);
     objeto = {"10057_wooden_door_v1"};
     posicao = {g_DoorX, g_DoorY, g_DoorZ};
-    rotacao = {M_PI_2, g_DoorAngle, 0.0f};
+    rotacao = {PI_2, g_DoorAngle, 0.0f};
     DrawOBJ(DOOR, objeto, posicao, SCALE_WALL/4, rotacao);
    
     // Parede da porta - esquerda
     model = Matrix_Translate(0.60f*SCALE_FLOOR, SCALE_WALL / 4, SCALE_FLOOR)
-            * Matrix_Rotate_X(-M_PI_2)
+            * Matrix_Rotate_X(-PI_2)
             * Matrix_Scale(0.50f*SCALE_FLOOR, SCALE_WALL, SCALE_WALL);
     glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(g_object_id_uniform, WALL);
@@ -1314,7 +1309,7 @@ void SalaPrincipal(){
 
     // Parede da porta - cima
     model = Matrix_Translate(0.0f, 0.67f*SCALE_FLOOR, SCALE_FLOOR)
-            * Matrix_Rotate_X(-M_PI_2)
+            * Matrix_Rotate_X(-PI_2)
             * Matrix_Scale(0.1f*SCALE_FLOOR, 0.01f*SCALE_FLOOR, SCALE_WALL);
     glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(g_object_id_uniform, WALL);
@@ -1322,8 +1317,8 @@ void SalaPrincipal(){
 
     // Parede esquerda
     model = Matrix_Translate(-SCALE_FLOOR, SCALE_WALL / 4, 0.0f)
-            * Matrix_Rotate_X(M_PI_2)
-            * Matrix_Rotate_Z(-M_PI_2)
+            * Matrix_Rotate_X(PI_2)
+            * Matrix_Rotate_Z(-PI_2)
             * Matrix_Scale(SCALE_FLOOR, SCALE_WALL, SCALE_WALL);
     glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(g_object_id_uniform, WALL);
@@ -1331,12 +1326,14 @@ void SalaPrincipal(){
 
     // Parede direita
     model = Matrix_Translate(SCALE_FLOOR, SCALE_WALL / 4, 0.0f)
-            * Matrix_Rotate_X(M_PI_2)
-            * Matrix_Rotate_Z(M_PI_2)
+            * Matrix_Rotate_X(PI_2)
+            * Matrix_Rotate_Z(PI_2)
             * Matrix_Scale(SCALE_FLOOR, SCALE_WALL, SCALE_WALL);
     glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
     glUniform1i(g_object_id_uniform, WALL);
     DrawVirtualObject("the_wall");
+
+    Dardos(door, exibirDardos);
 }
 
 // Função adaptada para desenhar objetos compostos por várias partes - gerado por I.A.
@@ -1406,49 +1403,52 @@ void DrawOBJ(int objectId,const std::vector<std::string>& parts,const glm::vec3&
     }
 }
 
-void Alavanca(GLFWwindow* window, bool &armadilhas, bool &door) {
+void Alavanca(GLFWwindow* window, bool &door, bool &armadilhasDesativadas){
     if (g_GameState != GameState::GAME_PLAY)
         return;
 
     float distanceToLever = glm::length(Player.Position - LEVER_POSITION);
-        bool isCloseToLever = (distanceToLever < 1.5f && !g_leverActivated);
-        bool isLookingAtLever = false;
-        if (isCloseToLever) {
-            glm::vec3 dirToLever = glm::normalize(LEVER_POSITION - Player.Position);
-            float dot = glm::dot(Player.Front, dirToLever);
-            const float viewAngleThreshold = cos(glm::radians(30.0f));
-            isLookingAtLever = (dot > viewAngleThreshold);
+    bool isCloseToLever = (distanceToLever < 1.5f && !g_leverActivated);
+    bool isLookingAtLever = false;
+    if (isCloseToLever) {
+        glm::vec3 dirToLever = glm::normalize(LEVER_POSITION - Player.Position);
+        float dot = glm::dot(Player.Front, dirToLever);
+        const float viewAngleThreshold = cos(glm::radians(30.0f));
+        isLookingAtLever = (dot > viewAngleThreshold);
+    }
+    g_showLeverText = isCloseToLever && isLookingAtLever;
+    if (g_showLeverText)
+        TextRendering_PrintString(window, "Pressione L para acionar a alavanca", 
+            -0.3f - 0.5f * strlen("Pressione L para acionar a alavanca") * TextRendering_CharWidth(window), 
+            -0.5f - 0.5f * TextRendering_LineHeight(window), FONT_HEIGHT);
+
+    g_LeverTargetAngle = g_leverActivated ? -glm::radians(70.0f) : 0.0f;
+
+    float diff = g_LeverTargetAngle - g_LeverAngle;
+    float maxStep = g_LeverSpeed * deltaTime;
+    if (fabs(diff) <= maxStep)
+        g_LeverAngle = g_LeverTargetAngle;
+    else
+        g_LeverAngle += (diff > 0.0f ? 1.0f : -1.0f) * maxStep;
+    
+    if (g_leverActivated)
+        door = true;
+    static double TimeOpen = 0.0;
+    if (g_leverActivated && TimeOpen == 0.0)
+        TimeOpen = glfwGetTime();
+    if (TimeOpen > 0.0 && glfwGetTime() - TimeOpen >= 3.0) {
+        if ( !CheckSafe(Player.Position) && !armadilhasDesativadas ) {
+            g_GameState = GameState::GAME_OVER;
+            g_DeathCause = DeathCause::DARDO;
+            //glfwSetWindowShouldClose(window, GL_TRUE);
         }
-        g_showLeverText = isCloseToLever && isLookingAtLever;
-        if (g_showLeverText)
-            TextRendering_PrintString(window, "Pressione L para acionar a alavanca", 
-                -0.3f - 0.5f * strlen("Pressione L para acionar a alavanca") * TextRendering_CharWidth(window), 
-                -0.5f - 0.5f * TextRendering_LineHeight(window), FONT_HEIGHT);
+        armadilhasDesativadas = true;
+    }
 
-        g_LeverTargetAngle = g_leverActivated ? -glm::radians(70.0f) : 0.0f;
-
-        float diff = g_LeverTargetAngle - g_LeverAngle;
-        float maxStep = g_LeverSpeed * deltaTime;
-        if (fabs(diff) <= maxStep)
-            g_LeverAngle = g_LeverTargetAngle;
-        else
-            g_LeverAngle += (diff > 0.0f ? 1.0f : -1.0f) * maxStep;
-
-    if (g_leverActivated && !door && armadilhas){
-            g_LeverAtivationTime += deltaTime;
-            if (g_LeverAtivationTime >= TIME_KILL){
-                if( !CheckSafe(Player.Position) )
-                    glfwSetWindowShouldClose(window, GL_FALSE);
-                else{
-                    armadilhas = false;
-                    door = true;
-                }
-            }
-        }
 }
 
 void Porta(bool &door) {
-    const float openedAngle = M_PI_2;
+    const float openedAngle = PI_2;
     const float closedAngle = 0.0f;
 
     float targetAngle = door ? openedAngle : closedAngle;
@@ -1466,7 +1466,35 @@ void Porta(bool &door) {
     g_DoorZ = BASE_DOOR_Z - DOOR_RADIUS * sin(g_DoorAngle);
 }
 
-void Tempo(GLFWwindow* window, bool &armadilhas){
+void Telas(GLFWwindow* window){
+
+    if (g_GameState == GameState::START_MENU) {
+            TextRendering_PrintString(window, "Pressione ENTER para iniciar o jogo", 
+                -0.3f - 0.5f * strlen("Pressione ENTER para iniciar o jogo") * TextRendering_CharWidth(window), 
+                0.0f - 0.5f * TextRendering_LineHeight(window), FONT_HEIGHT);
+        } else if (g_GameState == GameState::GAME_OVER) {
+            switch (g_DeathCause) {
+                case DeathCause::NONE:
+                    TextRendering_PrintString(window, "Parabéns, você conseguiu!", 
+                        -0.4f - 0.5f * strlen("Parabéns, você conseguiu!") * TextRendering_CharWidth(window), 
+                        0.0f - 0.5f * TextRendering_LineHeight(window), FONT_HEIGHT);
+                    break;
+                case DeathCause::DARDO:
+                    TextRendering_PrintString(window, "Voce morreu! Cuidado com as armadilhas!", 
+                        -0.4f - 0.5f * strlen("Voce morreu! Cuidado com as armadilhas!") * TextRendering_CharWidth(window), 
+                        0.0f - 0.5f * TextRendering_LineHeight(window), FONT_HEIGHT);
+                    break;
+                case DeathCause::TIMEOUT:
+                    TextRendering_PrintString(window, "Voce morreu! O tempo acabou!", 
+                        -0.3f - 0.5f * strlen("Voce morreu! O tempo acabou!") * TextRendering_CharWidth(window), 
+                        0.0f - 0.5f * TextRendering_LineHeight(window), FONT_HEIGHT);
+                    break;
+                
+            }
+        }
+}
+
+void Tempo(GLFWwindow* window){
     if (g_GameState != GameState::GAME_PLAY)
         return;
     
@@ -1476,7 +1504,6 @@ void Tempo(GLFWwindow* window, bool &armadilhas){
     
     if (remaining <= 0.0f){
         remaining = 0.0f;
-        armadilhas = false;
         g_GameState = GameState::GAME_OVER;
         g_DeathCause = DeathCause::TIMEOUT;
     } else if (remaining > TOTAL_TIME)
