@@ -88,19 +88,6 @@ struct ObjModel
     }
 };
 
-enum class GameState {
-    START_MENU,
-    GAME_PLAY,
-    GHOST_MODE,
-    GAME_OVER
-};
-enum class DeathCause {
-    NONE,
-    TRAP,
-    TIMEOUT
-};
-
-
 void PushMatrix(glm::mat4 M);
 void PopMatrix(glm::mat4& M);
 
@@ -391,7 +378,7 @@ int main(int argc, char* argv[]) {
             
         Player.Update(deltaTime);
 
-        PlayerWallCollision(Player, g_ghost, door);
+        PlayerWallCollision(Player, g_ghost, door, &g_GameState);
         PlayerObjectCollision(Player, g_ghost, g_listaAABB);
 
     
@@ -431,8 +418,8 @@ int main(int argc, char* argv[]) {
         } else if (g_GameState == GameState::GAME_OVER) {
             switch (g_DeathCause) {
                 case DeathCause::NONE:
-                    TextRendering_PrintString(window, "Parabéns, você conseguiu!", 
-                        -0.4f - 0.5f * strlen("Parabéns, você conseguiu!") * TextRendering_CharWidth(window), 
+                    TextRendering_PrintString(window, "Parabens, voce conseguiu!", 
+                        -0.4f - 0.5f * strlen("Parabens, voce conseguiu!") * TextRendering_CharWidth(window), 
                         0.0f - 0.5f * TextRendering_LineHeight(window), FONT_HEIGHT);
                     break;
                 case DeathCause::TRAP:
@@ -982,6 +969,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
                 g_GameState = GameState::GAME_PLAY;
                 g_startGamePlayTime = (float)glfwGetTime();
             }
+            allowPlayerMovement(key, false);
             break;
         case GameState::GAME_PLAY:
             allowPlayerMovement(key, pressed);
@@ -990,6 +978,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
             allowPlayerMovement(key, pressed);
             break;
         case GameState::GAME_OVER:
+            allowPlayerMovement(key, false);
             break;
         default:
             return;

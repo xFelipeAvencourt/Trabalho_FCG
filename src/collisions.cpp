@@ -8,7 +8,7 @@
 
 #define margin (PLAYER_HEIGHT / 2.0f + 0.08f)
 
-void PlayerWallCollision(Camera &player, bool ghostMode, bool door) {
+void PlayerWallCollision(Camera &player, bool ghostMode, bool door, GameState* gameState) {
     if (ghostMode) return;
 
     const float minX = -SCALE_FLOOR + margin;
@@ -16,8 +16,9 @@ void PlayerWallCollision(Camera &player, bool ghostMode, bool door) {
     const float minZ = -SCALE_FLOOR + margin;
     const float maxZ =  SCALE_FLOOR - margin;
 
-    if(door && player.Position.z > SCALE_FLOOR - margin && player.Position.x >= -SCALE_WALL / 4 && player.Position.x <= SCALE_WALL / 4){
+    if(door && *gameState == GameState::GAME_PLAY && player.Position.z > SCALE_FLOOR - margin && player.Position.x >= -SCALE_WALL / 4 && player.Position.x <= SCALE_WALL / 4){
             printf("Win\n");
+            *gameState = GameState::GAME_OVER;
             // tela de vitória
             return;
     }
@@ -85,7 +86,6 @@ void PlayerObjectCollision(Camera &player, bool ghostMode, const std::map<int, s
 }
 
 bool CheckSafe(const glm::vec3& position) {
-
     auto it = g_listaAABB.find(4);
     if (it == g_listaAABB.end()) return false;
 
