@@ -35,3 +35,22 @@
 #define BASE_DOOR_Z SCALE_FLOOR
 #define BASE_DOOR_ANGLE 0.0f
 #define DOOR_RADIUS 0.5f
+
+#ifndef GAME_STATE
+#define GAME_STATE
+enum class GameState {
+    START_MENU,
+    GAME_PLAY,
+    GHOST_MODE,
+    GAME_OVER
+};
+#endif
+
+#ifndef DEATH_CAUSE
+#define DEATH_CAUSE
+enum class DeathCause {
+    NONE,
+    TRAP,
+    TIMEOUT
+};
+#endif
