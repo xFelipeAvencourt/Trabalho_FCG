@@ -4,6 +4,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <algorithm>
 
+#include <cstdio>
+#include <cstdlib>
+
 enum Camera_Movement {
     FORWARD,
     BACKWARD,
@@ -40,23 +43,24 @@ public:
     float MovementSpeed;
     float MouseSensitivity;
     float Zoom;
+    GameState gameState;
 
     Camera(vec3 position = POS_INICIAL, vec3 up = WORLD_UP_INICIAL,
-           float yaw = YAW, float pitch = PITCH) : Front(FRONT_INICIAL), 
-           MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM) {
+           float yaw = YAW, float pitch = PITCH, GameState gameState = GameState::START_MENU) : Front(FRONT_INICIAL), 
+           MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM), gameState(gameState) {
         Position = position;
         WorldUp = up;
         Yaw = yaw;
         Pitch = pitch;
-        updateCameraVectors();
+        this->gameState = gameState;
+        updateCameraVectors(gameState);
     }
 
     mat4 GetViewMatrix() {
         return lookAt(Position, Position + Front, Up);
     }
 
-    void setGhostMode(bool ghost) {
-        
+    void setGhostMode(bool ghost, GameState state) {
         if (!ghost) {
             float descentSpeed = 1.0f;
             while (Position.y > GROUND_LEVEL) {
@@ -65,12 +69,12 @@ public:
                 Position.y = GROUND_LEVEL;
             }
 
-            updateCameraVectors();
+            updateCameraVectors(state);
         }
 
     }
 
-    void setCtrlMode(bool press) {
+    void setCtrlMode(bool press, GameState state) {
         if (!isJumping) {
             if(press) {
                 isCrouched = true;
@@ -90,7 +94,7 @@ public:
                         Position.y = GROUND_LEVEL;    
                 }
             }
-            updateCameraVectors();
+            updateCameraVectors(state);
         }
     }
 
@@ -132,7 +136,7 @@ public:
         Position += move;
     }
 
-    void ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch = true) {
+    void ProcessMouseMovement(float xoffset, float yoffset, GameState state, bool constrainPitch = true) {
         xoffset *= MouseSensitivity;
         yoffset *= MouseSensitivity;
 
@@ -143,7 +147,7 @@ public:
             Pitch = std::min(Pitch, 89.0f);
             Pitch = std::max(Pitch, -89.0f);
         }
-        updateCameraVectors();
+        updateCameraVectors(state);
     }
 
     void ProcessMouseScroll(float yoffset) {
@@ -176,11 +180,19 @@ private:
     float jumpVelocity = 0.0f;
     const float jumpForce = 8.0f;
 
-    void updateCameraVectors() {
+    void updateCameraVectors(GameState state) {
         vec3 front;
         front.x = cos(radians(Yaw)) * cos(radians(Pitch));
-        front.y = sin(radians(Pitch));
         front.z = sin(radians(Yaw)) * cos(radians(Pitch));
+
+        if (state == GameState::START_MENU) {
+            float radius = 4.0f;
+            Position.x = -radius * cos(radians(Yaw));
+            Position.z = -radius * sin(radians(Yaw));
+        } else {
+            front.y = sin(radians(Pitch));
+        }
+
         Front = normalize(front);
         Right = normalize(cross(Front, WorldUp));
         Up = normalize(cross(Right, Front));

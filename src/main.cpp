@@ -166,6 +166,10 @@ double g_LastCursorPosX, g_LastCursorPosY;
 // Variavéis Camera esféricas
 float g_CameraDistance = 3.5f; // Distância da câmera para a origem
 
+GameState g_GameState = GameState::START_MENU;
+GameState g_GameStateBeforeGhost = GameState::START_MENU;
+DeathCause g_DeathCause = DeathCause::NONE;
+
 Camera Player(glm::vec3(0.0f, 0.0f, 4.0f));
 float deltaTime = 0.0f, lastFrameTime = 0.0f;
 
@@ -218,10 +222,6 @@ GLint g_light_direction_uniform;
 GLint g_light_cutoff_angle_uniform;
 GLint g_light_outer_cutoff_uniform;
 GLint g_light_range_uniform;
-
-GameState g_GameState = GameState::START_MENU;
-GameState g_GameStateBeforeGhost = GameState::START_MENU;
-DeathCause g_DeathCause = DeathCause::NONE;
 
 // Tempo
 float g_LeverAtivationTime = 0.0f;
@@ -867,7 +867,7 @@ void CursorPosCallback(GLFWwindow* window, double xpos, double ypos){
     lastX = xpos;
     lastY = ypos;
 
-    Player.ProcessMouseMovement(xoffset, yoffset);
+    Player.ProcessMouseMovement(xoffset, yoffset, g_GameState);
 }
 
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset){
@@ -906,11 +906,11 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
             g_GameState = g_GameStateBeforeGhost;
         }
         g_ghost = !g_ghost;
-        Player.setGhostMode(g_ghost);
+        Player.setGhostMode(g_ghost, g_GameState);
     }
     if ((key == GLFW_KEY_LEFT_CONTROL || key == GLFW_KEY_RIGHT_CONTROL) && action == GLFW_PRESS){
         g_ctrlPressed = !g_ctrlPressed;
-        Player.setCtrlMode(g_ctrlPressed);
+        Player.setCtrlMode(g_ctrlPressed, g_GameState);
     }
     float distanceToLever = glm::length(Player.Position - LEVER_POSITION);
     if (key == GLFW_KEY_L && action == GLFW_PRESS && distanceToLever < 1.5f)
