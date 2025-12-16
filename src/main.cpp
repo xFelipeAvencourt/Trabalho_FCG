@@ -134,6 +134,7 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 ///////////////////////////////////////////////////////////////////////
 
 void Dardos(bool &door, bool &exibirDardos);
+void Ball();
 void SalaPrincipal(bool &door, bool &exibirDardos);
 void Alavanca(GLFWwindow* window, bool &door, bool &armadilhasDesativadas);
 void DrawOBJ(int objectId,const std::vector<std::string>& parts,const glm::vec3& position,float size,const glm::vec3& rotation);
@@ -297,6 +298,7 @@ int main(int argc, char* argv[]) {
     LoadTextureImage("../../data/Textures/teto.jpg");
     LoadTextureImage("../../data/Textures/mine.png");
     LoadTextureImage("../../data/Textures/Dardo.jpg");
+    LoadTextureImage("../../data/Textures/ball.png");
 
     ObjModel planemodel("../../data/plane.obj");
     ComputeNormals(&planemodel);
@@ -335,6 +337,10 @@ int main(int argc, char* argv[]) {
     ObjModel trapmodel("../../data/Dardo.obj");
     ComputeNormals(&trapmodel);
     BuildTrianglesAndAddToVirtualScene(&trapmodel);
+
+    ObjModel ballmodel("../../data/ball.obj");
+    ComputeNormals(&ballmodel);
+    BuildTrianglesAndAddToVirtualScene(&ballmodel);
 
     bool door = false;
     bool armadilhasDesativadas = false;
@@ -497,6 +503,7 @@ void LoadShadersFromFiles(){
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage5"), 5);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage6"), 6);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage7"), 7);
+    glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage8"), 8);
     glUniform3f(glGetUniformLocation(g_GpuProgramID, "light_position"), LIGHT_POSITION.x, LIGHT_POSITION.y, LIGHT_POSITION.z);
     glUniform3f(glGetUniformLocation(g_GpuProgramID, "light_color"), LIGHT_COLOR.x, LIGHT_COLOR.y, LIGHT_COLOR.z);
     glUniform1f(glGetUniformLocation(g_GpuProgramID, "light_intensity"), LIGHT_INTENSITY);
@@ -1215,7 +1222,20 @@ void Dardos(bool &door, bool &exibirDardos) {
     }
 }
 
-void SalaPrincipal(bool &door, bool &exibirDardos){
+void Ball() {
+    #define BALL 10
+
+    glm::mat4 model;
+    glm::vec3 pos = glm::vec3(1.0f, 1.2f, 1.0f);
+    float s = 2.0f;
+
+    model = Matrix_Translate(pos.x, pos.y, pos.z) * Matrix_Scale(s,s,s);
+    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+    glUniform1i(g_object_id_uniform, BALL);
+    DrawVirtualObject("ball");
+}
+
+void SalaPrincipal(bool &door, bool &exibirDardos) {
 
     #define PLANE       1
     #define WALL        2
@@ -1224,6 +1244,7 @@ void SalaPrincipal(bool &door, bool &exibirDardos){
     #define LAMP        5
     #define DOOR        6
     #define LEVER       8
+    #define BALL        10
     glm::mat4 model = Matrix_Identity();
     vector<string> objeto;
     glm::vec3 posicao, rotacao;
@@ -1326,6 +1347,7 @@ void SalaPrincipal(bool &door, bool &exibirDardos){
     DrawVirtualObject("the_wall");
 
     Dardos(door, exibirDardos);
+    Ball();
 }
 
 // Função adaptada para desenhar objetos compostos por várias partes.

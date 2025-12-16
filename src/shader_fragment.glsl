@@ -39,6 +39,7 @@ uniform float light_range;
 #define DOOR        6
 #define LEVER       8
 #define TRAP        9
+#define BALL        10
 uniform int object_id;
 
 // Variáveis para acesso das imagens de textura
@@ -50,6 +51,7 @@ uniform sampler2D TextureImage4;
 uniform sampler2D TextureImage5;
 uniform sampler2D TextureImage6;
 uniform sampler2D TextureImage7;
+uniform sampler2D TextureImage8;
 
 uniform int gouraud_enabled;
 
@@ -128,6 +130,10 @@ void main()
         Kd0 = texture(TextureImage7, vec2(U,V)).rgb;
         Kd1 = vec3(0.0);
     }
+    else if (object_id == BALL) {
+        Kd0 = texture(TextureImage8, vec2(U,V)).rgb;
+        Kd1 = vec3(0.0);
+    }
 
 /////////////////////////////////////////////
 //  GOURAUD SHADER (WALL)
@@ -177,6 +183,20 @@ if (gouraud_enabled == 1 && object_id == WALL)
     vec3 diffuse = base * light_color * light_intensity;
     vec3 ambient = Kd0 * 0.001;
 
+    vec3 blinn_phong_color = diffuse + ambient;
+    if (object_id == BALL) // com Blinn-Phong
+    {
+        vec3 reflex_dir = normalize(l3 + v3);
+        float spec_angle = max(0.0, dot(n3, reflex_dir));
+        float shine = 40.0;
+        float spec = pow(spec_angle, shine);
+
+        vec3 Kspec = vec3(0.1, 0.1, 0.1);
+        vec3 specular = Kspec * spec * light_color * light_intensity;
+
+        blinn_phong_color += specular;
+    }
+
     if (object_id == TABLE || object_id == PLANE || object_id == CEILING)
         diffuse *= cone_intensity;
 
@@ -188,6 +208,8 @@ if (gouraud_enabled == 1 && object_id == WALL)
 
     if ((object_id == TABLE || object_id == PLANE || object_id == CEILING) && cone_intensity < 0.1)
         color.rgb = ambient;
+    else if (object_id == BALL)
+        color.rgb = blinn_phong_color;
     else
         color.rgb = diffuse + ambient;
     color.a = 1;
