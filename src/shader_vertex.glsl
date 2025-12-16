@@ -15,10 +15,24 @@ uniform mat4 projection;
 // ** Estes serão interpolados pelo rasterizador! ** gerando, assim, valores
 // para cada fragmento, os quais serão recebidos como entrada pelo Fragment
 // Shader. Veja o arquivo "shader_fragment.glsl".
+
+uniform int object_id; // para selecionar apenas WALL
+
+// luz
+uniform vec3 light_position;
+uniform vec3 light_color;
+uniform float light_intensity;
+
+uniform int gouraud_enabled;
+
 out vec4 position_world;
 out vec4 position_model;
 out vec4 normal;
 out vec2 texcoords;
+
+out vec3 gouraud;
+
+#define WALL 2
 
 void main()
 {
@@ -63,5 +77,22 @@ void main()
 
     // Coordenadas de textura obtidas do arquivo OBJ (se existirem!)
     texcoords = texture_coefficients;
-}
 
+    
+    if (gouraud_enabled == 1 && object_id == WALL)
+    {
+        gouraud = vec3(1.0, 1.0, 1.0);
+
+        vec3 p3 = position_world.xyz;
+        vec3 n3 = normalize(normal.xyz);
+        vec3 l3 = normalize(light_position - p3);
+
+        float lambert = max(0.0, dot(n3, l3));
+        float ambient_strength = 0.001;
+
+        vec3 ambient = ambient_strength * light_color * light_intensity;
+        vec3 diffuse = lambert * light_color * light_intensity;
+
+        gouraud = ambient + diffuse;
+    }
+}

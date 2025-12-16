@@ -13,6 +13,8 @@ in vec4 position_model;
 // Coordenadas de textura obtidas do arquivo OBJ (se existirem!)
 in vec2 texcoords;
 
+in vec3 gouraud;
+
 // Matrizes computadas no código C++ e enviadas para a GPU
 uniform mat4 model;
 uniform mat4 view;
@@ -48,6 +50,8 @@ uniform sampler2D TextureImage4;
 uniform sampler2D TextureImage5;
 uniform sampler2D TextureImage6;
 uniform sampler2D TextureImage7;
+
+uniform int gouraud_enabled;
 
 // O valor de saída ("out") de um Fragment Shader é a cor final do fragmento.
 out vec4 color;
@@ -124,6 +128,19 @@ void main()
         Kd0 = texture(TextureImage7, vec2(U,V)).rgb;
         Kd1 = vec3(0.0);
     }
+
+/////////////////////////////////////////////
+//  GOURAUD SHADER (WALL)
+/////////////////////////////////////////////
+if (gouraud_enabled == 1 && object_id == WALL)
+{
+    vec3 shader = Kd0 * gouraud;
+
+    color = vec4(shader, 1.0);
+    
+    return; //não aplica a luz, somente o shader, já que ele já considera lambert
+}
+
 /////////////////////////////////////////////
 //  LUZ
 /////////////////////////////////////////////

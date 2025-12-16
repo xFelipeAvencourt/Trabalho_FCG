@@ -216,6 +216,7 @@ GLint g_projection_uniform;
 GLint g_object_id_uniform;
 GLint g_bbox_min_uniform;
 GLint g_bbox_max_uniform;
+GLint g_gouraud_uniform;
 
 // LUZ
 GLint g_light_direction_uniform;
@@ -227,6 +228,8 @@ GLint g_light_range_uniform;
 float g_LeverAtivationTime = 0.0f;
 
 GLuint g_NumLoadedTextures = 0;
+
+bool g_GouradEnabled = true;
 
 int main(int argc, char* argv[]) {
     // Inicialização da biblioteca GLFW, que gerencia a janela
@@ -361,6 +364,7 @@ int main(int argc, char* argv[]) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glUseProgram(g_GpuProgramID);
+        glUniform1i(g_gouraud_uniform, g_GouradEnabled ? 1 : 0); // ajustando se habilita ou não todo frame
 
         float lastTime = (float)glfwGetTime();
         deltaTime = lastTime - lastFrameTime;
@@ -476,6 +480,7 @@ void LoadShadersFromFiles(){
     g_object_id_uniform  = glGetUniformLocation(g_GpuProgramID, "object_id");
     g_bbox_min_uniform   = glGetUniformLocation(g_GpuProgramID, "bbox_min");
     g_bbox_max_uniform   = glGetUniformLocation(g_GpuProgramID, "bbox_max");
+    g_gouraud_uniform    = glGetUniformLocation(g_GpuProgramID, "gouraud_enabled");
     
     g_light_direction_uniform = glGetUniformLocation(g_GpuProgramID, "light_direction");
     g_light_cutoff_angle_uniform = glGetUniformLocation(g_GpuProgramID, "light_cutoff_angle");
@@ -495,6 +500,7 @@ void LoadShadersFromFiles(){
     glUniform3f(glGetUniformLocation(g_GpuProgramID, "light_position"), LIGHT_POSITION.x, LIGHT_POSITION.y, LIGHT_POSITION.z);
     glUniform3f(glGetUniformLocation(g_GpuProgramID, "light_color"), LIGHT_COLOR.x, LIGHT_COLOR.y, LIGHT_COLOR.z);
     glUniform1f(glGetUniformLocation(g_GpuProgramID, "light_intensity"), LIGHT_INTENSITY);
+    glUniform1i(g_gouraud_uniform, g_GouradEnabled ? 1 : 0);
     
     glUniform3f(g_light_direction_uniform, 0.0f, -1.0f, 0.0f);
     glUniform1f(g_light_cutoff_angle_uniform, glm::radians(15.0f));
@@ -916,13 +922,16 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
     if (key == GLFW_KEY_L && action == GLFW_PRESS && distanceToLever < 1.5f)
         g_leverActivated = !g_leverActivated;
 
-    if (key == GLFW_KEY_H && action == GLFW_PRESS)
+    if (key == GLFW_KEY_F && action == GLFW_PRESS)
         g_ShowInfoText = !g_ShowInfoText;
 
     if (key == GLFW_KEY_R && action == GLFW_PRESS){
         LoadShadersFromFiles();
         fprintf(stdout,"Shaders recarregados!\n");
         fflush(stdout);
+    }
+    if (key == GLFW_KEY_H && action == GLFW_PRESS){
+        g_GouradEnabled = !g_GouradEnabled;
     }
 
     // Movimento do Jogador
