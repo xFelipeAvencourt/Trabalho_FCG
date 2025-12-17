@@ -12,6 +12,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <algorithm>
+#include <random>
 
 // Headers das bibliotecas OpenGL
 #include <glad/glad.h>
@@ -142,6 +143,7 @@ void Tempo(GLFWwindow* window);
 void Porta(bool &door);
 void Telas(GLFWwindow* window);
 void allowPlayerMovement(int key, bool pressed);
+glm::vec3 CubicBezier(const glm::vec3& p0, const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, float t);
 ///////////////////////////////////////////////////////////////////////
 /////////////////////////Matrizes//////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////
@@ -231,6 +233,11 @@ float g_LeverAtivationTime = 0.0f;
 GLuint g_NumLoadedTextures = 0;
 
 bool g_GouradEnabled = true;
+
+glm::vec3 g_BallPos = glm::vec3(0.0f, 0.0f, 0.0f);
+bool g_ThrowStarted = false;
+bool g_ThrowCooldown = false;
+int g_HitCount = 0;
 
 int main(int argc, char* argv[]) {
     // Inicialização da biblioteca GLFW, que gerencia a janela
@@ -927,7 +934,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
     }
     float distanceToLever = glm::length(Player.Position - LEVER_POSITION);
     if (key == GLFW_KEY_L && action == GLFW_PRESS && distanceToLever < 1.5f)
-        g_leverActivated = !g_leverActivated;
+        g_leverActivated = true;
 
     if (key == GLFW_KEY_F && action == GLFW_PRESS)
         g_ShowInfoText = !g_ShowInfoText;
@@ -939,6 +946,11 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
     }
     if (key == GLFW_KEY_H && action == GLFW_PRESS){
         g_GouradEnabled = !g_GouradEnabled;
+    }
+    if ((key == GLFW_KEY_LEFT_SHIFT || key == GLFW_KEY_RIGHT_SHIFT) && action == GLFW_PRESS) {
+        if (g_GameState == GameState::GAME_PLAY && !g_ThrowStarted && !g_ThrowCooldown) {
+            g_ThrowStarted = true;
+        }
     }
 
     // Movimento do Jogador
@@ -1225,18 +1237,68 @@ void Dardos(bool &door, bool &exibirDardos) {
 void Ball() {
     #define BALL 10
 
-    glm::mat4 model;
-    glm::vec3 pos = glm::vec3(1.0f, 1.2f, 1.0f);
-    float s = 2.0f;
+    static float ballThrowStartedOn;
+    static float timeToTarget;
+    static glm::vec3 p0, p1, p2, p3;
 
-    model = Matrix_Translate(pos.x, pos.y, pos.z) * Matrix_Scale(s,s,s);
-    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-    glUniform1i(g_object_id_uniform, BALL);
-    DrawVirtualObject("ball");
+    static glm::vec3 throwDirection;
+    static glm::vec3 normalizedDirection;
+
+    float currentTime = glfwGetTime();
+
+    if (g_ThrowStarted) {
+        static std::mt19937 gen;
+        ballThrowStartedOn = glfwGetTime();
+
+        p0 = glm::vec3(Player.Position.x, Player.Position.y, Player.Position.z);
+        p3 = glm::vec3(BASE_LEVER_X, BASE_LEVER_Y + 0.1f, BASE_LEVER_Z);
+
+        throwDirection = p3 - p0;
+        normalizedDirection = glm::normalize(throwDirection);
+
+        float distance = glm::length(throwDirection);
+        timeToTarget = distance / BALL_SPEED;
+
+        glm::vec3 baseYVec = glm::vec3(0.0f, 1.0f, 0.0f);   // vetor com len = 1 apontando para cima
+        // perpendicularDirectionVec -> perpendicular a "cima" e à direção do arremesso, logo forma uma cruz com arremesso olhando de cima. Define o offset para o lado
+        glm::vec3 perpendicularDirectionVec = glm::normalize(glm::cross(normalizedDirection, baseYVec));
+
+        float kOffset = 0.75f;
+        glm::vec3 offsetP1 = perpendicularDirectionVec * std::uniform_real_distribution<float>(-kOffset, kOffset)(gen) + baseYVec * std::uniform_real_distribution<float>(-kOffset, kOffset)(gen);
+        glm::vec3 offsetP2 = perpendicularDirectionVec * std::uniform_real_distribution<float>(-kOffset, kOffset)(gen) + baseYVec * std::uniform_real_distribution<float>(-kOffset, kOffset)(gen);
+
+        p1 = p0 + (p3 - p0) * 0.33f + offsetP1;
+        p2 = p0 + (p3 - p0) * 0.67f + offsetP2;
+        g_ThrowCooldown = true;
+        g_ThrowStarted = false;
+    }
+
+    if (g_ThrowCooldown) {
+        float t = currentTime - ballThrowStartedOn;
+        float t01 = t / timeToTarget; //"normalizado" t para [0..1] para usar com Bezier
+        if (t01 > 1.0f) {
+            t01 = 1.0f;
+        } // como as vezes t pode ultrapassar o tempo previsto por questões de fps, garantir que t01 realmente esteja em [0..1]
+
+        glm::vec3 currentPos = CubicBezier(p0, p1, p2, p3, t01);
+
+        glm::mat4 model = Matrix_Translate(currentPos.x, currentPos.y, currentPos.z) * Matrix_Scale(BALL_SCALE, BALL_SCALE, BALL_SCALE);
+        glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+        glUniform1i(g_object_id_uniform, BALL);
+        DrawVirtualObject("ball");
+
+        if (currentTime > ballThrowStartedOn + timeToTarget) {
+            g_ThrowCooldown = false;
+            g_HitCount++;
+
+            if (g_HitCount >= HITS_TO_ACTIVATE_LEVER) {
+                g_leverActivated = true;
+            }
+        }
+    }
 }
 
 void SalaPrincipal(bool &door, bool &exibirDardos) {
-
     #define PLANE       1
     #define WALL        2
     #define CEILING     3
@@ -1268,7 +1330,7 @@ void SalaPrincipal(bool &door, bool &exibirDardos) {
     rotacao = {0.0f, PI_2, 0.0f};
     DrawOBJ(LEVER,objeto,posicao,0.05f,rotacao);
     objeto = {"Lever"};
-    posicao = {0.00f, -0.25f, 0.0f};
+    posicao = {BASE_LEVER_X, BASE_LEVER_Y, BASE_LEVER_Z};
     rotacao = {g_LeverAngle, PI_2, 0.0f};
     DrawOBJ(LEVER,objeto,posicao,0.05f,rotacao);
 
@@ -1527,6 +1589,11 @@ void Tempo(GLFWwindow* window){
     float y_pos = 0.9f - TextRendering_LineHeight(window);
     
     TextRendering_PrintString(window, time_text, x_pos, y_pos, FONT_HEIGHT);
+}
+
+glm::vec3 CubicBezier(const glm::vec3& p0, const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, float t) {
+    float _t = 1.0f - t;
+    return (_t*_t*_t) * p0  + (3.0f*_t*_t*t) * p1 + (3.0f*_t*t*t) * p2 + (t*t*t) * p3;
 }
 // set makeprg=cd\ ..\ &&\ make\ run\ >/dev/null
 // vim: set spell spelllang=pt_br :

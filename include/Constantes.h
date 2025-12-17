@@ -36,6 +36,14 @@
 #define BASE_DOOR_ANGLE 0.0f
 #define DOOR_RADIUS 0.5f
 
+#define BASE_LEVER_X 0.0f
+#define BASE_LEVER_Y -0.25f
+#define BASE_LEVER_Z 0.0f
+
+#define BALL_SCALE 2.0f
+#define BALL_SPEED 5.0f
+#define HITS_TO_ACTIVATE_LEVER 5
+
 #ifndef GAME_STATE
 #define GAME_STATE
 enum class GameState {
